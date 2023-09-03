@@ -1,4 +1,4 @@
-package dev.itswin11.greenland.ui.theme
+package dev.itswin11.greenland.activities.auth.ui.theme
 
 import android.app.Activity
 import android.os.Build
@@ -57,9 +57,8 @@ fun GreenlandTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.background.toArgb()
-            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = !darkTheme
-            WindowCompat.getInsetsController(window, view).isAppearanceLightNavigationBars = !darkTheme
+            window.statusBarColor = colorScheme.primary.toArgb()
+            WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }
 

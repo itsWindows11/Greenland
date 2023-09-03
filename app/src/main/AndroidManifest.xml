@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,9 +15,21 @@
         android:theme="@style/Theme.Greenland"
         tools:targetApi="31">
         <activity
+            android:name=".activities.home.HomeActivity"
+            android:exported="false"
+            android:label="@string/title_activity_home"
+            android:theme="@style/Theme.Greenland" />
+        <activity
+            android:name=".activities.auth.SignUpActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Greenland" />
+        <activity
+            android:name=".activities.auth.LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Greenland" />
+        <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.Greenland">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
