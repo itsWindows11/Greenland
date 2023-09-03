@@ -1,6 +1,5 @@
 package dev.itswin11.greenland.activities.home
 
-import android.content.Context
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -14,19 +13,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.datastore.preferences.preferencesDataStore
-import dev.itswin11.greenland.activities.home.ui.theme.GreenlandTheme
 import dev.itswin11.greenland.constants.SettingsConstants
 import dev.itswin11.greenland.dataStore
+import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

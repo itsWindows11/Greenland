@@ -1,10 +1,7 @@
 package dev.itswin11.greenland.activities.auth
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -30,25 +27,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
-import dev.itswin11.greenland.activities.auth.ui.theme.GreenlandTheme
 import dev.itswin11.greenland.activities.home.HomeActivity
 import dev.itswin11.greenland.constants.SettingsConstants
 import dev.itswin11.greenland.dataStore
 import dev.itswin11.greenland.helpers.Global
-import dev.itswin11.greenland.models.AtProtoSessionCredentials
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.request.get
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-import io.ktor.serialization.kotlinx.json.json
+import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
