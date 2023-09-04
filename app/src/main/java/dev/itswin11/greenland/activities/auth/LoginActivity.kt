@@ -10,8 +10,13 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -24,13 +29,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.edit
 import dev.itswin11.greenland.activities.home.HomeActivity
 import dev.itswin11.greenland.constants.SettingsConstants
-import dev.itswin11.greenland.dataStore
 import dev.itswin11.greenland.helpers.Global
+import dev.itswin11.greenland.helpers.authDataStore
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.launch
 
@@ -58,6 +64,10 @@ class LoginActivity : ComponentActivity() {
             val handle = remember { mutableStateOf("") }
             val password = remember { mutableStateOf("") }
 
+            val showPassword = remember { mutableStateOf(false) }
+
+            val visualTransformation = if (showPassword.value) VisualTransformation.None else PasswordVisualTransformation()
+
             val coroutineScope = rememberCoroutineScope()
 
             Text(
@@ -74,8 +84,17 @@ class LoginActivity : ComponentActivity() {
                     value = password.value,
                     onValueChange = { password.value = it },
                     label = { Text("App password") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                    visualTransformation = visualTransformation,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        IconButton(onClick = { showPassword.value = !showPassword.value }) {
+                            Icon(
+                                if (showPassword.value) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = "Visibility",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 )
             }
             Button(onClick = { coroutineScope.launch { startSignInFlow(handle.value, password.value) } }) {
@@ -87,11 +106,12 @@ class LoginActivity : ComponentActivity() {
     private suspend fun startSignInFlow(handle: String, password: String) {
         val result = Global.AtProtoClient.createSession("bsky.social", handle, password)
 
-        dataStore.edit {
+        authDataStore.edit {
             it[SettingsConstants.ACCESS_JWT] = result.accessJwt
             it[SettingsConstants.REFRESH_JWT] = result.refreshJwt
             it[SettingsConstants.CURRENT_USER_DID] = result.did
             it[SettingsConstants.CURRENT_USER_HANDLE] = result.handle
+            it[SettingsConstants.SIGNED_IN] = true
         }
 
         startActivity(Intent(this, HomeActivity::class.java))

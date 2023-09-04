@@ -1,48 +1,71 @@
 package dev.itswin11.greenland
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.preferencesDataStore
 import dev.itswin11.greenland.activities.auth.LoginActivity
 import dev.itswin11.greenland.activities.auth.SignUpActivity
+import dev.itswin11.greenland.activities.home.HomeActivity
+import dev.itswin11.greenland.constants.SettingsConstants
 import dev.itswin11.greenland.enums.AuthActivityType
+import dev.itswin11.greenland.helpers.authDataStore
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
-
-val Context.dataStore by preferencesDataStore(
-    name = "auth"
-)
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val flow : Flow<Boolean> = authDataStore.data.map { preferences ->
+            preferences[SettingsConstants.SIGNED_IN] ?: false
+        }
+
         setContent {
+            val signedIn = flow.collectAsState(initial = null).value
+
+            if (signedIn == true) {
+                startActivity(Intent(this@MainActivity, HomeActivity::class.java))
+                finish()
+            }
+
             GreenlandTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    LoginOrSignUpView()
+                    if (signedIn == false)
+                        LoginOrSignUpView()
+                    else {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.requiredWidth(48.dp),
+                                color = MaterialTheme.colorScheme.secondary
+                            )
+                        }
+                    }
                 }
             }
         }
