@@ -32,11 +32,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.datastore.preferences.core.edit
 import dev.itswin11.greenland.activities.home.HomeActivity
-import dev.itswin11.greenland.constants.SettingsConstants
 import dev.itswin11.greenland.helpers.Global
 import dev.itswin11.greenland.helpers.authDataStore
+import dev.itswin11.greenland.protobuf.AuthInfo
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.launch
 
@@ -104,14 +103,44 @@ class LoginActivity : ComponentActivity() {
     }
 
     private suspend fun startSignInFlow(handle: String, password: String) {
-        val result = Global.AtProtoClient.createSession("bsky.social", handle, password)
+        val result = Global.atProtoClient.createSession("bsky.social", handle, password)
 
-        authDataStore.edit {
-            it[SettingsConstants.ACCESS_JWT] = result.accessJwt
+        authDataStore.updateData { it ->
+            /*it[SettingsConstants.ACCESS_JWT] = result.accessJwt
             it[SettingsConstants.REFRESH_JWT] = result.refreshJwt
             it[SettingsConstants.CURRENT_USER_DID] = result.did
             it[SettingsConstants.CURRENT_USER_HANDLE] = result.handle
-            it[SettingsConstants.SIGNED_IN] = true
+            it[SettingsConstants.SIGNED_IN] = true*/
+
+            val builder = it.toBuilder()
+
+            val authInfoBuilder = AuthInfo.getDefaultInstance().toBuilder()
+
+            authInfoBuilder.accessJwt = result.accessJwt
+            authInfoBuilder.refreshJwt = result.refreshJwt
+            authInfoBuilder.did = result.did
+            authInfoBuilder.handle = result.handle
+            authInfoBuilder.signedIn = true
+
+            builder.signedIn = true
+
+            val authInfo = authInfoBuilder.build()
+
+            builder.authInfoList.toList().forEachIndexed { index, _ ->
+                /*if (item.signedIn) {
+                    val itemBuilder = item.toBuilder()
+                    itemBuilder.signedIn = false
+                    builder.authInfoList[index] = itemBuilder.build()
+                }*/
+
+                // TODO: Remove this when we fully add account management
+                builder.removeAuthInfo(index)
+            }
+
+            builder.addAuthInfo(authInfo)
+            builder.currentAccountIndex = builder.authInfoList.size - 1
+
+            return@updateData builder.build()
         }
 
         startActivity(Intent(this, HomeActivity::class.java))

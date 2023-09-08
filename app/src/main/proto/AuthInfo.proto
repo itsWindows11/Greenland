@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option java_package = "dev.itswin11.greenland.protobuf";
+option java_multiple_files = true;
+
+message AuthInfoContainer {
+  int32 currentAccountIndex = 1;
+  bool signedIn = 2;
+  repeated AuthInfo authInfo = 3;
+}
+
+message AuthInfo {
+  string did = 1;
+  string handle = 2;
+  string email = 3;
+  string accessJwt = 4;
+  string refreshJwt = 5;
+  bool signedIn = 6;
+}

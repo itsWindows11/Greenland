@@ -10,13 +10,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import dev.itswin11.greenland.constants.SettingsConstants
 import dev.itswin11.greenland.helpers.authDataStore
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.flow.Flow
@@ -29,31 +24,23 @@ class HomeActivity : ComponentActivity() {
         Toast.makeText(this, "HomeActivity", Toast.LENGTH_SHORT).show()
 
         val flow : Flow<String> = authDataStore.data.map { preferences ->
-            preferences[SettingsConstants.CURRENT_USER_DID] ?: ""
+            preferences.authInfoList[preferences.currentAccountIndex].did ?: ""
         }
 
         val handleFlow : Flow<String> = authDataStore.data.map { preferences ->
-            preferences[SettingsConstants.CURRENT_USER_HANDLE] ?: ""
+            preferences.authInfoList[preferences.currentAccountIndex].handle ?: ""
         }
 
         setContent {
+            val userDid = flow.collectAsState(initial = null).value
+            val handle = handleFlow.collectAsState(initial = null).value
+
             GreenlandTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    var userDid by remember { mutableStateOf("") }
-                    var handle by remember { mutableStateOf("") }
-
-                    flow.collectAsState(initial = "").value.let {
-                        userDid = it
-                    }
-
-                    handleFlow.collectAsState(initial = "").value.let {
-                        handle = it
-                    }
-
                     Greeting(name = "$userDid ($handle)")
                 }
             }

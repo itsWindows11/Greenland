@@ -28,25 +28,22 @@ import androidx.compose.ui.unit.dp
 import dev.itswin11.greenland.activities.auth.LoginActivity
 import dev.itswin11.greenland.activities.auth.SignUpActivity
 import dev.itswin11.greenland.activities.home.HomeActivity
-import dev.itswin11.greenland.constants.SettingsConstants
 import dev.itswin11.greenland.enums.AuthActivityType
 import dev.itswin11.greenland.helpers.authDataStore
+import dev.itswin11.greenland.protobuf.AuthInfoContainer
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val flow : Flow<Boolean> = authDataStore.data.map { preferences ->
-            preferences[SettingsConstants.SIGNED_IN] ?: false
-        }
+        val flow : Flow<AuthInfoContainer> = authDataStore.data
 
         setContent {
-            val signedIn = flow.collectAsState(initial = null).value
+            val authInfoContainer = flow.collectAsState(initial = null).value
 
-            if (signedIn == true) {
+            if (authInfoContainer != null && authInfoContainer.signedIn) {
                 startActivity(Intent(this@MainActivity, HomeActivity::class.java))
                 finish()
             }
@@ -56,7 +53,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (signedIn == false)
+                    if (authInfoContainer != null && !authInfoContainer.signedIn)
                         LoginOrSignUpView()
                     else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
