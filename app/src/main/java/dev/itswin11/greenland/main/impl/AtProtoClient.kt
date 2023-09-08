@@ -1,7 +1,7 @@
 package dev.itswin11.greenland.main.impl
 
 import dev.itswin11.greenland.App
-import dev.itswin11.greenland.helpers.authDataStore
+import dev.itswin11.greenland.authDataStore
 import dev.itswin11.greenland.main.IAtProtoClient
 import dev.itswin11.greenland.models.AtProtoCreateSessionResult
 import dev.itswin11.greenland.models.AtProtoRefreshSessionInfo
@@ -24,10 +24,7 @@ import java.util.Calendar
 class AtProtoClient : IAtProtoClient {
     private val httpClient: HttpClient = HttpClient {
         install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-            })
+            json(Json)
         }
     }
 

@@ -14,7 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,9 +31,9 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import dev.itswin11.greenland.App
 import dev.itswin11.greenland.activities.home.HomeActivity
-import dev.itswin11.greenland.helpers.Global
-import dev.itswin11.greenland.helpers.authDataStore
+import dev.itswin11.greenland.authDataStore
 import dev.itswin11.greenland.protobuf.AuthInfo
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.launch
@@ -55,7 +54,6 @@ class LoginActivity : ComponentActivity() {
         }
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     @Preview(showSystemUi = true)
     @Composable
     fun LoginView() {
@@ -103,7 +101,7 @@ class LoginActivity : ComponentActivity() {
     }
 
     private suspend fun startSignInFlow(handle: String, password: String) {
-        val result = Global.atProtoClient.createSession("bsky.social", handle, password)
+        val result = App.atProtoClient.createSession("bsky.social", handle, password)
 
         authDataStore.updateData { it ->
             /*it[SettingsConstants.ACCESS_JWT] = result.accessJwt

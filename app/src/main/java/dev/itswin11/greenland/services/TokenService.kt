@@ -2,7 +2,7 @@ package dev.itswin11.greenland.services
 
 import android.content.Context
 import com.auth0.android.jwt.JWT
-import dev.itswin11.greenland.helpers.authDataStore
+import dev.itswin11.greenland.authDataStore
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

@@ -29,7 +29,6 @@ import dev.itswin11.greenland.activities.auth.LoginActivity
 import dev.itswin11.greenland.activities.auth.SignUpActivity
 import dev.itswin11.greenland.activities.home.HomeActivity
 import dev.itswin11.greenland.enums.AuthActivityType
-import dev.itswin11.greenland.helpers.authDataStore
 import dev.itswin11.greenland.protobuf.AuthInfoContainer
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.flow.Flow
