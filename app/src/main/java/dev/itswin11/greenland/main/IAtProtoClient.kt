@@ -1,6 +1,8 @@
 package dev.itswin11.greenland.main
 
 import dev.itswin11.greenland.models.AtProtoCreateSessionResult
+import dev.itswin11.greenland.models.BskyGetTimelineInput
+import dev.itswin11.greenland.models.BskyGetTimelineResult
 
 interface IAtProtoClient {
     /**
@@ -11,5 +13,10 @@ interface IAtProtoClient {
     /**
      * Automatically renews the AT Protocol session if needed.
      */
-    suspend fun renewSessionIfNeeded(server: String)
+    suspend fun refreshSessionIfNeeded(server: String)
+
+    /**
+     * Gets the Bluesky home feed.
+     */
+    suspend fun getHomeTimeline(server: String, input: BskyGetTimelineInput): BskyGetTimelineResult
 }

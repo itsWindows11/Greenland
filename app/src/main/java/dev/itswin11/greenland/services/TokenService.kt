@@ -3,44 +3,42 @@ package dev.itswin11.greenland.services
 import android.content.Context
 import com.auth0.android.jwt.JWT
 import dev.itswin11.greenland.authDataStore
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 class TokenService(private val context: Context) {
-    suspend fun getCurrentDid(accountIndex: Int): String? = coroutineScope {
+    suspend fun getCurrentDid(accountIndex: Int): String? {
         val flow : Flow<String?> = context.authDataStore.data.map { preferences ->
             preferences.authInfoList[accountIndex].did
         }
 
-        return@coroutineScope flow.stateIn(this).value
+        return flow.first()
     }
 
-    suspend fun getCurrentHandle(accountIndex: Int): String? = coroutineScope {
+    suspend fun getCurrentHandle(accountIndex: Int): String? {
         val flow : Flow<String?> = context.authDataStore.data.map { preferences ->
             preferences.authInfoList[accountIndex].handle
         }
 
-        return@coroutineScope flow.stateIn(this).value
+        return flow.first()
     }
 
-    suspend fun getCurrentAccessTokenInfo(accountIndex: Int): JWT? = coroutineScope {
+    suspend fun getCurrentAccessTokenInfo(accountIndex: Int): JWT? {
         val accessJwtFlow : Flow<String?> = context.authDataStore.data.map { preferences ->
             preferences.authInfoList[accountIndex].accessJwt
         }
 
-        val accessJwt = accessJwtFlow.stateIn(this).value ?: return@coroutineScope null
-
-        return@coroutineScope JWT(accessJwt)
+        val accessJwt = accessJwtFlow.first() ?: return null
+        return JWT(accessJwt)
     }
 
-    suspend fun getCurrentRefreshTokenInfo(accountIndex: Int): JWT? = coroutineScope {
+    suspend fun getCurrentRefreshTokenInfo(accountIndex: Int): JWT?  {
         val accessJwtFlow : Flow<String?> = context.authDataStore.data.map { preferences ->
             preferences.authInfoList[accountIndex].refreshJwt
         }
 
-        val accessJwt = accessJwtFlow.stateIn(this).value ?: return@coroutineScope null
-        return@coroutineScope JWT(accessJwt)
+        val accessJwt = accessJwtFlow.first() ?: return null
+        return JWT(accessJwt)
     }
 }
