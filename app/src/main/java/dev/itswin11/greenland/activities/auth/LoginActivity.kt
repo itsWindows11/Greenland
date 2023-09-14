@@ -112,7 +112,7 @@ class LoginActivity : ComponentActivity() {
 
             val builder = it.toBuilder()
 
-            val authInfoBuilder = AuthInfo.getDefaultInstance().toBuilder()
+            val authInfoBuilder = AuthInfo.newBuilder()
 
             authInfoBuilder.accessJwt = result.accessJwt
             authInfoBuilder.refreshJwt = result.refreshJwt

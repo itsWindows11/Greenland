@@ -4,7 +4,6 @@ import dev.itswin11.greenland.App
 import dev.itswin11.greenland.authDataStore
 import dev.itswin11.greenland.main.IAtProtoClient
 import dev.itswin11.greenland.models.AtProtoCreateSessionResult
-import dev.itswin11.greenland.models.AtProtoRefreshSessionInfo
 import dev.itswin11.greenland.models.AtProtoSessionCredentials
 import dev.itswin11.greenland.models.BskyGetTimelineInput
 import dev.itswin11.greenland.models.BskyGetTimelineResult
@@ -66,24 +65,35 @@ class AtProtoClient : IAtProtoClient {
 
         val result = httpClient.post("https://$server/xrpc/com.atproto.server.refreshSession") {
             contentType(ContentType.Application.Json)
-            setBody(AtProtoRefreshSessionInfo(accessInfo.toString(), info.toString(), handle, did))
-        }.body<AtProtoCreateSessionResult>()
+
+            headers {
+                append(HttpHeaders.Authorization, "Bearer ${info.toString()}")
+            }
+        }
+
+        val response = result.body<AtProtoCreateSessionResult>()
 
         App.instance.authDataStore.updateData {
             val builder = it.toBuilder()
 
-            val authInfoBuilder = AuthInfo.getDefaultInstance().toBuilder()
+            val authInfoBuilder = AuthInfo.newBuilder()
 
-            authInfoBuilder.accessJwt = result.accessJwt
-            authInfoBuilder.refreshJwt = result.refreshJwt
-            authInfoBuilder.did = result.did
-            authInfoBuilder.handle = result.handle
+            authInfoBuilder.accessJwt = response.accessJwt
+            authInfoBuilder.refreshJwt = response.refreshJwt
+            authInfoBuilder.did = response.did
+            authInfoBuilder.handle = response.handle
             authInfoBuilder.signedIn = true
 
             builder.signedIn = true
 
+            builder.removeAuthInfo(currentAccountIndex)
+            builder.addAuthInfo(currentAccountIndex, authInfoBuilder.build())
+
             return@updateData builder.build()
         }
+
+        val accessInfo2 = App.instance.tokenService.getCurrentAccessTokenInfo(currentAccountIndex)
+        accessInfo2.hashCode()
     }
 
     override suspend fun getHomeTimeline(server: String, input: BskyGetTimelineInput): BskyGetTimelineResult {
