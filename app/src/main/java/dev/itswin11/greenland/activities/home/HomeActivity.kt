@@ -1,13 +1,13 @@
 package dev.itswin11.greenland.activities.home
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
@@ -46,9 +46,7 @@ class HomeActivity : ComponentActivity() {
             val posts = remember { mutableStateOf<List<BskyFeedViewPost>?>(null) }
 
             LaunchedEffect(Unit) {
-                Log.e("HomeActivity", "posts.value being determined...")
                 posts.value = App.atProtoClient.getHomeTimeline("bsky.social", BskyGetTimelineInput(limit = 100)).feed
-                Log.e("HomeActivity", "posts.value = ${posts.value}")
             }
 
             GreenlandTheme {
@@ -80,6 +78,7 @@ fun PostsList(posts: List<BskyFeedViewPost>) {
         items(posts.size) { index ->
             Column {
                 Card(
+                    modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(containerColor = Color.Transparent),
                     onClick = {},
                     shape = RoundedCornerShape(0.dp)
@@ -92,6 +91,7 @@ fun PostsList(posts: List<BskyFeedViewPost>) {
                         Text(posts[index].post.cid)
                         Text(posts[index].post.indexedAt)
                         Text(posts[index].post.author.handle)
+                        Text(if (posts[index].post.author.displayName != null) posts[index].post.author.displayName!! else "Display Name Cannot Be Retrieved.")
                         Text(posts[index].post.likeCount.toString() + " likes")
                         Text(posts[index].post.repostCount.toString() + " reposts")
 
