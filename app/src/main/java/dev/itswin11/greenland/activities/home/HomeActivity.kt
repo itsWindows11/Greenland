@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -14,9 +13,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -26,6 +29,7 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -33,6 +37,8 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,10 +51,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.models.BskyFeedViewPost
@@ -81,7 +87,13 @@ class HomeActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     var refreshing by remember { mutableStateOf(false) }
+                    val appBarState = rememberTopAppBarState()
+                    val scrollState = rememberLazyListState()
                     val coroutineScope = rememberCoroutineScope()
+
+                    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(appBarState)
+
+                    var navigationSelectedItem by remember { mutableIntStateOf(0) }
 
                     LaunchedEffect(true) {
                         if (refreshing) {
@@ -92,8 +104,6 @@ class HomeActivity : ComponentActivity() {
                             refreshing = false
                         }
                     }
-
-                    var navigationSelectedItem by remember { mutableIntStateOf(0) }
 
                     /*val bottomBarState = remember { mutableStateOf(true) }
 
@@ -130,32 +140,33 @@ class HomeActivity : ComponentActivity() {
                         refreshing = refreshing,
                         onRefresh = {
                             coroutineScope.launch {
+                                refreshing = true
                                 posts.value = App.atProtoClient.getHomeTimeline(
                                     "bsky.social",
                                     BskyGetTimelineInput(limit = 100)
                                 ).feed
                                 refreshing = false
+
+                                scrollState.animateScrollToItem(0, 0)
                             }
-                        }
+                        },
+                        refreshThreshold = 50.dp,
+                        refreshingOffset = 60.dp
                     )
 
                     Scaffold(
-                        //modifier = Modifier.nestedScroll(nestedScrollConnection),
+                        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
                         topBar = {
                             //Column(modifier = Modifier.offset { IntOffset(x = 0, y = topBarOffsetHeightPx.floatValue.roundToInt()) }) {
-                            Column {
-                                CenterAlignedTopAppBar(
-                                    title = {
-                                        Text(
-                                            "Home",
-                                            fontSize = 18.sp,
-                                            fontWeight = FontWeight.SemiBold
-                                        )
-                                    }
-                                )
-
-                                Divider()
-                            }
+                            CenterAlignedTopAppBar(
+                                title = {
+                                    Text(
+                                        "Greenland",
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                },
+                                scrollBehavior = scrollBehavior
+                            )
                         },
                         bottomBar = {
                             NavigationBar {
@@ -182,50 +193,48 @@ class HomeActivity : ComponentActivity() {
                                 }
                             }
                         },
-                        content = {
-                            if (posts.value != null) {
-                                PostsList(posts.value!!)
-
-                                Box(
-                                    modifier = Modifier.fillMaxSize().pullRefresh(pullRefreshState),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    PostsList(posts.value!!)
-                                    PullRefreshIndicator(
-                                        refreshing,
-                                        pullRefreshState,
-                                        Modifier.align(Alignment.TopCenter).border(
-                                            width = 1.dp,
-                                            color = MaterialTheme.colorScheme.outline
-                                        ),
-                                        backgroundColor = MaterialTheme.colorScheme.background,
-                                        contentColor = MaterialTheme.colorScheme.onBackground,
-                                        scale = true
-                                    )
-                                }
-                            } else {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.requiredWidth(48.dp),
-                                        color = MaterialTheme.colorScheme.secondary
-                                    )
-                                }
+                        floatingActionButton = {
+                            FloatingActionButton(onClick = {  }) {
+                                Icon(Icons.Rounded.Add, contentDescription = "Add")
                             }
                         }
-                    )
+                    ) {
+                        if (posts.value != null) {
+                            Box(
+                                modifier = Modifier.padding(it).pullRefresh(pullRefreshState),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                PostsList(scrollState, posts.value!!)
+                                PullRefreshIndicator(
+                                    refreshing,
+                                    pullRefreshState,
+                                    Modifier.align(Alignment.TopCenter),
+                                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    scale = true
+                                )
+                            }
+                        } else {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.requiredWidth(48.dp),
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostsList(posts: List<BskyFeedViewPost>) {
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
+fun PostsList(scrollState: LazyListState, posts: List<BskyFeedViewPost>) {
+    LazyColumn(state = scrollState) {
         items(posts.size, key = { posts[it].post.cid }) { index ->
             PostView(posts[index].post)
         }
@@ -246,7 +255,9 @@ fun PostView(post: BskyPost) {
                     modifier = Modifier
                         .width(48.dp)
                         .height(48.dp)
-                        .clip(CircleShape), model = post.author.avatar, contentDescription = ""
+                        .clip(CircleShape),
+                    model = post.author.avatar,
+                    contentDescription = ""
                 )
                 Text(post.cid)
                 Text(post.indexedAt)
