@@ -1,6 +1,5 @@
 package dev.itswin11.greenland.activities.home
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -65,7 +64,6 @@ import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.launch
 
 class HomeActivity : ComponentActivity() {
-    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
