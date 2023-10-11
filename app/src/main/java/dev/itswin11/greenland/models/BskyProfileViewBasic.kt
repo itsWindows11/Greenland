@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class BskyProfileViewBasic(
     val did: String,
     val handle: String,
-    val displayName: String,
+    val displayName: String? = null,
     val avatar: String,
     val viewerState: BskyProfileViewerState? = null
 )
