@@ -67,6 +67,8 @@ import dev.itswin11.greenland.models.BskyProfileViewBasic
 import dev.itswin11.greenland.models.navigation.BottomNavigationItem
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class HomeActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
@@ -94,7 +96,7 @@ class HomeActivity : ComponentActivity() {
                     val scrollState = rememberLazyListState()
                     val coroutineScope = rememberCoroutineScope()
 
-                    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(appBarState)
+                    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(appBarState)
 
                     var navigationSelectedItem by remember { mutableIntStateOf(0) }
 
@@ -248,8 +250,19 @@ fun PostsList(scrollState: LazyListState, posts: List<BskyFeedViewPost>) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PostView(post: BskyPost) {
-    val displayName = post.author.displayName ?: post.author.handle
+fun PostView(post: BskyPost, preview: Boolean = false) {
+    val displayName = remember { post.author.displayName ?: post.author.handle }
+    val dateInMillis = remember {
+        if (preview) {
+            return@remember 0L
+        }
+
+        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH)
+            .parse(post.indexedAt)
+            ?.time ?: 0
+    }
+
+    val timeAgoString = remember { timeAgo(dateInMillis) }
 
     Column {
         Card(
@@ -287,14 +300,14 @@ fun PostView(post: BskyPost) {
                                     fontSize = 16.sp
                                 )
                                 Text(
-                                    "• " + post.indexedAt,
+                                    "• $timeAgoString",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
 
                             if (post.author.displayName != null)
                                 Text(
-                                    post.author.handle,
+                                    "@${post.author.handle}",
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                         }
@@ -321,7 +334,7 @@ fun PostView(post: BskyPost) {
 fun PostViewPreview() {
     val sampleProfile = BskyProfileViewBasic(
         "DID",
-        "@handle",
+        "handle",
         "Display Name",
         "https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar-300x300.jpg"
     )
@@ -337,7 +350,34 @@ fun PostViewPreview() {
     )
 
     GreenlandTheme {
-        PostView(bskyPost)
+        PostView(bskyPost, true)
+    }
+}
+
+fun timeAgo(time: Long): String {
+    val now = System.currentTimeMillis()
+    val diff = now - time
+    val second = 1000L
+    val minute = 60 * second
+    val hour = 60 * minute
+    val day = 24 * hour
+    val week = 7 * day
+    val month = 4 * week
+    val year = 12 * month
+
+    return when {
+        diff < minute -> "now"
+        diff < 2 * minute -> "m"
+        diff < hour -> "${diff / minute}m"
+        diff < 2 * hour -> "h"
+        diff < day -> "${diff / hour}h"
+        diff < 2 * day -> "1d"
+        diff < week -> "${diff / day}d"
+        diff < 2 * week -> "w"
+        diff < month -> "${diff / week}w"
+        diff < 2 * month -> "mo"
+        diff < year -> "${diff / month}mo"
+        else -> "${diff / year}y"
     }
 }
 
