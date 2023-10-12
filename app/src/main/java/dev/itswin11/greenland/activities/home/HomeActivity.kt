@@ -53,12 +53,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.models.BskyFeedViewPost
 import dev.itswin11.greenland.models.BskyGetTimelineInput
@@ -278,7 +280,10 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
                             .height(48.dp)
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceVariant),
-                        model = post.author.avatar,
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(post.author.avatar)
+                            .crossfade(500)
+                            .build(),
                         contentDescription = "Profile picture of $displayName"
                     )
 
