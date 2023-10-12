@@ -3,8 +3,10 @@ package dev.itswin11.greenland.activities.home
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -53,12 +55,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.models.BskyFeedViewPost
 import dev.itswin11.greenland.models.BskyGetTimelineInput
 import dev.itswin11.greenland.models.BskyPost
+import dev.itswin11.greenland.models.BskyProfileViewBasic
 import dev.itswin11.greenland.models.navigation.BottomNavigationItem
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.launch
@@ -192,14 +197,16 @@ class HomeActivity : ComponentActivity() {
                             }
                         },
                         floatingActionButton = {
-                            FloatingActionButton(onClick = {  }) {
+                            FloatingActionButton(onClick = { }) {
                                 Icon(Icons.Rounded.Add, contentDescription = "Add")
                             }
                         }
                     ) {
                         if (posts.value != null) {
                             Box(
-                                modifier = Modifier.padding(it).pullRefresh(pullRefreshState),
+                                modifier = Modifier
+                                    .padding(it)
+                                    .pullRefresh(pullRefreshState),
                                 contentAlignment = Alignment.Center
                             ) {
                                 PostsList(scrollState, posts.value!!)
@@ -242,6 +249,8 @@ fun PostsList(scrollState: LazyListState, posts: List<BskyFeedViewPost>) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostView(post: BskyPost) {
+    val displayName = post.author.displayName ?: post.author.handle
+
     Column {
         Card(
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -249,25 +258,86 @@ fun PostView(post: BskyPost) {
             shape = RoundedCornerShape(0.dp)
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
-                AsyncImage(
-                    modifier = Modifier
-                        .width(48.dp)
-                        .height(48.dp)
-                        .clip(CircleShape),
-                    model = post.author.avatar,
-                    contentDescription = ""
-                )
-                Text(post.cid)
-                Text(post.indexedAt)
-                Text(post.author.handle)
-                Text(post.likeCount.toString() + " likes")
-                Text(post.repostCount.toString() + " reposts")
+                Row {
+                    AsyncImage(
+                        modifier = Modifier
+                            .width(48.dp)
+                            .height(48.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                        model = post.author.avatar,
+                        contentDescription = ""
+                    )
+
+                    Column(
+                        modifier = Modifier
+                            .padding(12.dp, 0.dp, 0.dp, 0.dp)
+                            .weight(1f)
+                    ) {
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    modifier = Modifier
+                                        .weight(1f, false)
+                                        .padding(0.dp, 0.dp, 4.dp, 0.dp),
+                                    text = displayName,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 16.sp
+                                )
+                                Text(
+                                    "• " + post.indexedAt,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            if (post.author.displayName != null)
+                                Text(
+                                    post.author.handle,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                        }
+
+                        Column(modifier = Modifier.padding(0.dp, 8.dp)) {
+                            Text("Sample Post Content")
+                        }
+
+                        Text(post.likeCount.toString() + " likes")
+                        Text(post.repostCount.toString() + " reposts")
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(12.dp))
             }
         }
 
         Divider()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PostViewPreview() {
+    val sampleProfile = BskyProfileViewBasic(
+        "DID",
+        "@handle",
+        "Display Name",
+        "https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar-300x300.jpg"
+    )
+
+    val bskyPost = BskyPost(
+        "",
+        "CID sample",
+        sampleProfile,
+        0,
+        0,
+        0,
+        "5d"
+    )
+
+    GreenlandTheme {
+        PostView(bskyPost)
     }
 }
 
