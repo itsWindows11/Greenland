@@ -5,11 +5,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -24,7 +24,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Comment
+import androidx.compose.material.icons.rounded.HeartBroken
 import androidx.compose.material.icons.rounded.MoreHoriz
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -71,6 +74,7 @@ import dev.itswin11.greenland.App
 import dev.itswin11.greenland.models.BskyFeedViewPost
 import dev.itswin11.greenland.models.BskyGetTimelineInput
 import dev.itswin11.greenland.models.BskyPost
+import dev.itswin11.greenland.models.BskyPostRecord
 import dev.itswin11.greenland.models.BskyProfileViewBasic
 import dev.itswin11.greenland.models.navigation.BottomNavigationItem
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
@@ -266,7 +270,7 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
         }
 
         SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH)
-            .parse(post.indexedAt)
+            .parse(post.record.createdAt)
             ?.time ?: 0
     }
 
@@ -278,78 +282,122 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
             onClick = {},
             shape = RoundedCornerShape(0.dp)
         ) {
-            Column(modifier = Modifier.padding(12.dp)) {
-                Row {
-                    AsyncImage(
-                        modifier = Modifier
-                            .width(48.dp)
-                            .height(48.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(post.author.avatar)
-                            .crossfade(500)
-                            .build(),
-                        contentDescription = "Profile picture of $displayName"
-                    )
+            Row(modifier = Modifier.padding(12.dp, 12.dp, 12.dp, 0.dp)) {
+                AsyncImage(
+                    modifier = Modifier
+                        .width(48.dp)
+                        .height(48.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(post.author.avatar)
+                        .crossfade(500)
+                        .build(),
+                    contentDescription = "Profile picture of $displayName"
+                )
 
-                    Column(
-                        modifier = Modifier
-                            .padding(12.dp, 0.dp, 0.dp, 0.dp)
-                            .weight(1f)
+                Column(
+                    modifier = Modifier
+                        .padding(12.dp, 0.dp, 0.dp, 0.dp)
+                        .weight(1f)
+                ) {
+                    Row {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp), verticalAlignment = Alignment.CenterVertically) {
+                                Text(
+                                    modifier = Modifier
+                                        .weight(1f, false)
+                                        .padding(0.dp, 0.dp, 4.dp, 0.dp),
+                                    text = displayName,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1,
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 16.sp
+                                )
+                                Text(
+                                    "• $timeAgoString",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            if (post.author.displayName != null)
+                                Text(
+                                    "@${post.author.handle}",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    overflow = TextOverflow.Ellipsis,
+                                    maxLines = 1
+                                )
+                        }
+
+                        OutlinedButton(
+                            modifier = Modifier.width(48.dp).height(48.dp).offset(4.dp, (-8).dp),
+                            onClick = {},
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.onSurface
+                            ),
+                            border = BorderStroke(0.dp, Color.Transparent),
+                            contentPadding = PaddingValues(0.dp)
+                        ) {
+                            Icon(Icons.Rounded.MoreHoriz, contentDescription = "More")
+                        }
+                    }
+
+                    Column(modifier = Modifier.padding(0.dp, 8.dp)) {
+                        Text(post.record.text)
+                    }
+
+                    Row(
+                        modifier = Modifier.offset((-12).dp, 0.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Row {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Row(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp), verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        modifier = Modifier
-                                            .weight(1f, false)
-                                            .padding(0.dp, 0.dp, 4.dp, 0.dp),
-                                        text = displayName,
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 1,
-                                        fontWeight = FontWeight.SemiBold,
-                                        fontSize = 16.sp
-                                    )
-                                    Text(
-                                        "• $timeAgoString",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-
-                                if (post.author.displayName != null)
-                                    Text(
-                                        "@${post.author.handle}",
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        overflow = TextOverflow.Ellipsis,
-                                        maxLines = 1
-                                    )
-                            }
-
-                            OutlinedButton(
-                                modifier = Modifier.width(48.dp).height(48.dp).offset(4.dp, (-8).dp),
-                                onClick = {},
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Transparent,
-                                    contentColor = MaterialTheme.colorScheme.onSurface
-                                ),
-                                border = BorderStroke(0.dp, Color.Transparent),
-                                contentPadding = PaddingValues(0.dp)
-                            ) {
-                                Icon(Icons.Rounded.MoreHoriz, contentDescription = "More")
+                        OutlinedButton(
+                            onClick = {},
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            ),
+                            border = BorderStroke(0.dp, Color.Transparent),
+                            contentPadding = PaddingValues(12.dp, 4.dp)
+                        ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Icon(Icons.Rounded.Comment, contentDescription = "${post.replyCount} replies}")
+                                Text(post.replyCount.toString())
                             }
                         }
 
-                        Column(modifier = Modifier.padding(0.dp, 8.dp)) {
-                            Text("Sample Post Content")
+                        OutlinedButton(
+                            onClick = {},
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            ),
+                            border = BorderStroke(0.dp, Color.Transparent),
+                            contentPadding = PaddingValues(12.dp, 4.dp)
+                        ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Icon(Icons.Rounded.Share, contentDescription = "${post.replyCount} replies}")
+                                Text(post.repostCount.toString())
+                            }
                         }
 
-                        Text(post.likeCount.toString() + " likes")
-                        Text(post.repostCount.toString() + " reposts")
+                        OutlinedButton(
+                            onClick = {},
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            ),
+                            border = BorderStroke(0.dp, Color.Transparent),
+                            contentPadding = PaddingValues(12.dp, 4.dp)
+                        ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Icon(Icons.Rounded.HeartBroken, contentDescription = "${post.replyCount} replies}")
+                                Text(post.likeCount.toString())
+                            }
+                        }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(12.dp))
             }
         }
 
@@ -360,6 +408,13 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
 @Preview(showBackground = true)
 @Composable
 fun PostViewPreview() {
+    val sampleRecord = BskyPostRecord(
+        "Sample Post Content",
+        "app.bsky.embed.record",
+        Array(1) { "en" }.toList(),
+        "2023-10-11T13:40:03.364Z"
+    )
+
     val sampleProfile = BskyProfileViewBasic(
         "DID",
         "handle",
@@ -371,6 +426,7 @@ fun PostViewPreview() {
         "",
         "CID sample",
         sampleProfile,
+        sampleRecord,
         0,
         0,
         0,
