@@ -13,7 +13,7 @@ interface IAtProtoClient {
     /**
      * Automatically renews the AT Protocol session if needed.
      */
-    suspend fun refreshSessionIfNeeded(server: String)
+    suspend fun refreshSessionIfNeeded(server: String, checkForExpiration: Boolean)
 
     /**
      * Gets the Bluesky home feed.

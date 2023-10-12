@@ -42,7 +42,7 @@ class AtProtoClient : IAtProtoClient {
         return response.body()
     }
 
-    override suspend fun refreshSessionIfNeeded(server: String) {
+    override suspend fun refreshSessionIfNeeded(server: String, checkForExpiration: Boolean) {
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
 
         val accessInfo = App.instance.tokenService.getCurrentAccessTokenInfo(currentAccountIndex)
@@ -51,11 +51,11 @@ class AtProtoClient : IAtProtoClient {
         val did = App.instance.tokenService.getCurrentDid(currentAccountIndex)
         val handle = App.instance.tokenService.getCurrentHandle(currentAccountIndex)
 
-        if ((accessInfo != null
+        if (checkForExpiration && ((accessInfo != null
                     && accessInfo.expiresAt != null
                     && accessInfo.expiresAt!!.time > Calendar.getInstance().time.time)
             || handle == null
-            || did == null) {
+            || did == null)) {
             // We do not need to renew the session.
             // And if handle and did are null, we do not
             // need to refresh the session either since
@@ -97,8 +97,6 @@ class AtProtoClient : IAtProtoClient {
     }
 
     override suspend fun getHomeTimeline(server: String, input: BskyGetTimelineInput): BskyGetTimelineResult {
-        refreshSessionIfNeeded(server)
-
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
         val accessInfo = App.instance.authDataStore.data
             .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
@@ -110,6 +108,14 @@ class AtProtoClient : IAtProtoClient {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $accessInfo")
             }
+        }
+
+        if (response.status.value == 401) {
+            // In this case we need to refresh the session ASAP.
+            // Repeat the method call until we get a successful
+            // response.
+            refreshSessionIfNeeded(server, false)
+            return getHomeTimeline(server, input)
         }
 
         return response.body()
