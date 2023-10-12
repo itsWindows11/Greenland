@@ -279,7 +279,7 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceVariant),
                         model = post.author.avatar,
-                        contentDescription = ""
+                        contentDescription = "Profile picture of $displayName"
                     )
 
                     Column(
