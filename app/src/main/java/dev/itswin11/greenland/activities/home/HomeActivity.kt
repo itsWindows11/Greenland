@@ -3,13 +3,16 @@ package dev.itswin11.greenland.activities.home
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
@@ -21,9 +24,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -35,6 +40,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -292,29 +298,46 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
                             .padding(12.dp, 0.dp, 0.dp, 0.dp)
                             .weight(1f)
                     ) {
-                        Column {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    modifier = Modifier
-                                        .weight(1f, false)
-                                        .padding(0.dp, 0.dp, 4.dp, 0.dp),
-                                    text = displayName,
-                                    overflow = TextOverflow.Ellipsis,
-                                    maxLines = 1,
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 16.sp
-                                )
-                                Text(
-                                    "• $timeAgoString",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                        Row {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(modifier = Modifier.padding(0.dp, 0.dp, 8.dp, 0.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        modifier = Modifier
+                                            .weight(1f, false)
+                                            .padding(0.dp, 0.dp, 4.dp, 0.dp),
+                                        text = displayName,
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 1,
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 16.sp
+                                    )
+                                    Text(
+                                        "• $timeAgoString",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+
+                                if (post.author.displayName != null)
+                                    Text(
+                                        "@${post.author.handle}",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        overflow = TextOverflow.Ellipsis,
+                                        maxLines = 1
+                                    )
                             }
 
-                            if (post.author.displayName != null)
-                                Text(
-                                    "@${post.author.handle}",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                            OutlinedButton(
+                                modifier = Modifier.width(48.dp).height(48.dp).offset(4.dp, (-8).dp),
+                                onClick = {},
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,
+                                    contentColor = MaterialTheme.colorScheme.onSurface
+                                ),
+                                border = BorderStroke(0.dp, Color.Transparent),
+                                contentPadding = PaddingValues(0.dp)
+                            ) {
+                                Icon(Icons.Rounded.MoreHoriz, contentDescription = "More")
+                            }
                         }
 
                         Column(modifier = Modifier.padding(0.dp, 8.dp)) {
