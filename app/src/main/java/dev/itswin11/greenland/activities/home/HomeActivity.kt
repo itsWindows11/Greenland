@@ -255,6 +255,7 @@ fun PostsList(scrollState: LazyListState, posts: List<BskyFeedViewPost>) {
     LazyColumn(state = scrollState) {
         items(posts.size) { index ->
             PostView(posts[index].post)
+            Divider()
         }
     }
 }
@@ -329,7 +330,7 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
                         }
 
                         OutlinedButton(
-                            modifier = Modifier.width(48.dp).height(48.dp).offset(4.dp, (-8).dp),
+                            modifier = Modifier.width(48.dp).height(48.dp).offset(4.dp, (-10).dp),
                             onClick = {},
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color.Transparent,
@@ -342,7 +343,7 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
                         }
                     }
 
-                    Column(modifier = Modifier.padding(0.dp, 8.dp)) {
+                    Column(modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
                         Text(post.record.text)
                     }
 
@@ -420,8 +421,6 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
                 }
             }
         }
-
-        Divider()
     }
 }
 

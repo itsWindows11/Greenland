@@ -1,6 +1,5 @@
 package dev.itswin11.greenland.main.impl
 
-import android.util.Log
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.authDataStore
 import dev.itswin11.greenland.main.IAtProtoClient
@@ -16,7 +15,6 @@ import io.ktor.client.request.get
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
@@ -111,8 +109,6 @@ class AtProtoClient : IAtProtoClient {
                 append(HttpHeaders.Authorization, "Bearer $accessInfo")
             }
         }
-
-        Log.e("AtProtoClient", response.bodyAsText())
 
         if (response.status.value == 400 || response.status.value == 401) {
             // In this case we need to refresh the session ASAP.
