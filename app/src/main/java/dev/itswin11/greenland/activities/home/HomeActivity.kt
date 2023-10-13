@@ -111,16 +111,6 @@ class HomeActivity : ComponentActivity() {
 
                     var navigationSelectedItem by remember { mutableIntStateOf(0) }
 
-                    LaunchedEffect(true) {
-                        if (refreshing) {
-                            posts.value = App.atProtoClient.getHomeTimeline(
-                                "bsky.social",
-                                BskyGetTimelineInput(limit = 100)
-                            ).feed
-                            refreshing = false
-                        }
-                    }
-
                     /*val bottomBarState = remember { mutableStateOf(true) }
 
                     val bottomBarHeight = 84.dp
