@@ -24,10 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Comment
-import androidx.compose.material.icons.rounded.HeartBroken
 import androidx.compose.material.icons.rounded.MoreHoriz
-import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -63,6 +60,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -71,6 +69,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.itswin11.greenland.App
+import dev.itswin11.greenland.R
 import dev.itswin11.greenland.models.BskyFeedViewPost
 import dev.itswin11.greenland.models.BskyGetTimelineInput
 import dev.itswin11.greenland.models.BskyPost
@@ -254,7 +253,7 @@ class HomeActivity : ComponentActivity() {
 @Composable
 fun PostsList(scrollState: LazyListState, posts: List<BskyFeedViewPost>) {
     LazyColumn(state = scrollState) {
-        items(posts.size, key = { posts[it].post.cid }) { index ->
+        items(posts.size) { index ->
             PostView(posts[index].post)
         }
     }
@@ -361,8 +360,15 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
                             border = BorderStroke(0.dp, Color.Transparent),
                             contentPadding = PaddingValues(12.dp, 4.dp)
                         ) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Icon(Icons.Rounded.Comment, contentDescription = "${post.replyCount} replies}")
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    modifier = Modifier.width(20.dp).height(20.dp),
+                                    painter = painterResource(R.drawable.comment_icon),
+                                    contentDescription = "${post.replyCount} replies"
+                                )
                                 Text(post.replyCount.toString())
                             }
                         }
@@ -376,8 +382,15 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
                             border = BorderStroke(0.dp, Color.Transparent),
                             contentPadding = PaddingValues(12.dp, 4.dp)
                         ) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Icon(Icons.Rounded.Share, contentDescription = "${post.replyCount} replies}")
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    modifier = Modifier.width(20.dp).height(20.dp),
+                                    painter = painterResource(R.drawable.repost_icon),
+                                    contentDescription = "${post.repostCount} reposts"
+                                )
                                 Text(post.repostCount.toString())
                             }
                         }
@@ -391,8 +404,15 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
                             border = BorderStroke(0.dp, Color.Transparent),
                             contentPadding = PaddingValues(12.dp, 4.dp)
                         ) {
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Icon(Icons.Rounded.HeartBroken, contentDescription = "${post.replyCount} replies}")
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    modifier = Modifier.width(20.dp).height(20.dp),
+                                    painter = painterResource(R.drawable.like_icon),
+                                    contentDescription = "${post.likeCount} likes"
+                                )
                                 Text(post.likeCount.toString())
                             }
                         }
