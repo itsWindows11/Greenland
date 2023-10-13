@@ -9,6 +9,6 @@ data class BskyPostRecord(
     @SerializedName("\$type")
     val type: String? = null,
     // val embed: Any
-    val langs: List<String>,
+    val langs: List<String>? = null,
     val createdAt: String
 )

@@ -114,7 +114,7 @@ class AtProtoClient : IAtProtoClient {
 
         Log.e("AtProtoClient", response.bodyAsText())
 
-        if (response.status.value == 401) {
+        if (response.status.value == 400 || response.status.value == 401) {
             // In this case we need to refresh the session ASAP.
             // Repeat the method call until we get a successful
             // response.
