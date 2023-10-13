@@ -78,6 +78,7 @@ import dev.itswin11.greenland.models.BskyProfileViewBasic
 import dev.itswin11.greenland.models.navigation.BottomNavigationItem
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.launch
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -256,12 +257,18 @@ fun PostView(post: BskyPost, preview: Boolean = false) {
     val displayName = remember { post.author.displayName ?: post.author.handle }
     val dateInMillis = remember {
         if (preview) {
-            return@remember 0L
+            return@remember 0
         }
 
-        SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH)
-            .parse(post.record.createdAt)
-            ?.time ?: 0
+        try {
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH)
+                .parse(post.record.createdAt)
+                ?.time ?: 0
+        } catch (_: ParseException) {
+            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH)
+                .parse(post.record.createdAt)
+                ?.time ?: 0
+        }
     }
 
     val timeAgoString = remember { timeAgo(dateInMillis) }
