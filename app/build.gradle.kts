@@ -54,7 +54,7 @@ android {
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
-    implementation(platform("androidx.compose:compose-bom:2023.09.00"))
+    implementation(platform("androidx.compose:compose-bom:2023.10.00"))
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
