@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import dev.itswin11.greenland.activities.auth.LoginActivity
 import dev.itswin11.greenland.activities.auth.SignUpActivity
 import dev.itswin11.greenland.activities.home.HomeActivity
@@ -37,31 +39,48 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val flow : Flow<AuthInfoContainer> = authDataStore.data
+        WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            val authInfoContainer = flow.collectAsState(initial = null).value
-
-            if (authInfoContainer != null && authInfoContainer.signedIn) {
-                startActivity(Intent(this@MainActivity, HomeActivity::class.java))
-                finish()
-            }
-
             GreenlandTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (authInfoContainer != null && !authInfoContainer.signedIn)
-                        LoginOrSignUpView()
-                    else {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.requiredWidth(48.dp),
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-                    }
+                    MainView(authDataStore.data)
+                }
+            }
+        }
+    }
+
+    @Composable
+    fun MainView(flow : Flow<AuthInfoContainer>) {
+        val authInfoContainer = flow.collectAsState(initial = null).value
+
+        LaunchedEffect(authInfoContainer?.signedIn) {
+            if (authInfoContainer?.signedIn == true) {
+                startActivity(
+                    Intent(this@MainActivity, HomeActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+                )
+                finish()
+            }
+        }
+
+        if (authInfoContainer != null && !authInfoContainer.signedIn)
+            LoginOrSignUpView()
+        else {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.requiredWidth(48.dp),
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+
+                    Text("Connecting...", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

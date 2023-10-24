@@ -5,14 +5,20 @@ import dev.itswin11.greenland.authDataStore
 import dev.itswin11.greenland.main.IAtProtoClient
 import dev.itswin11.greenland.models.AtProtoCreateSessionResult
 import dev.itswin11.greenland.models.AtProtoSessionCredentials
+import dev.itswin11.greenland.models.BskyGetFeedGeneratorResult
+import dev.itswin11.greenland.models.BskyGetFeedGeneratorsResult
+import dev.itswin11.greenland.models.BskyGetFeedInput
+import dev.itswin11.greenland.models.BskyGetFeedResult
 import dev.itswin11.greenland.models.BskyGetTimelineInput
-import dev.itswin11.greenland.models.BskyGetTimelineResult
+import dev.itswin11.greenland.models.BskyPreferencesModel
 import dev.itswin11.greenland.protobuf.AuthInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
@@ -30,6 +36,10 @@ class AtProtoClient : IAtProtoClient {
             json(Json {
                 ignoreUnknownKeys = true
             })
+        }
+
+        install(HttpRequestRetry) {
+            retryOnServerErrors(5)
         }
     }
 
@@ -96,14 +106,21 @@ class AtProtoClient : IAtProtoClient {
         accessInfo2.hashCode()
     }
 
-    override suspend fun getHomeTimeline(server: String, input: BskyGetTimelineInput): BskyGetTimelineResult {
+    override suspend fun getHomeTimeline(server: String, input: BskyGetTimelineInput): BskyGetFeedResult {
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
         val accessInfo = App.instance.authDataStore.data
             .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
 
         val response = httpClient.get("https://$server/xrpc/app.bsky.feed.getTimeline") {
-            contentType(ContentType.Application.Json)
-            setBody(input)
+            parameter("limit", input.limit)
+
+            if (input.cursor != null) {
+                parameter("cursor", input.cursor)
+            }
+
+            if (input.algorithm != null) {
+                parameter("algorithm", input.algorithm)
+            }
 
             headers {
                 append(HttpHeaders.Authorization, "Bearer $accessInfo")
@@ -116,6 +133,107 @@ class AtProtoClient : IAtProtoClient {
             // response.
             refreshSessionIfNeeded(server, false)
             return getHomeTimeline(server, input)
+        }
+
+        return response.body()
+    }
+
+    override suspend fun getPreferences(server: String): BskyPreferencesModel {
+        val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
+        val accessInfo = App.instance.authDataStore.data
+            .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
+
+        val response = httpClient.get("https://$server/xrpc/app.bsky.actor.getPreferences") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $accessInfo")
+            }
+        }
+
+        if (response.status.value == 400 || response.status.value == 401) {
+            // In this case we need to refresh the session ASAP.
+            // Repeat the method call until we get a successful
+            // response.
+            refreshSessionIfNeeded(server, false)
+            return getPreferences(server)
+        }
+
+        return BskyPreferencesModel(response.body())
+    }
+
+    override suspend fun getFeedGenerators(server: String, feedUris: Iterable<String>): BskyGetFeedGeneratorsResult {
+        val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
+        val accessInfo = App.instance.authDataStore.data
+            .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
+
+        val response = httpClient.get("https://$server/xrpc/app.bsky.feed.getFeedGenerators") {
+            contentType(ContentType.Application.Json)
+            setBody(feedUris)
+
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $accessInfo")
+            }
+        }
+
+        if (response.status.value == 400 || response.status.value == 401) {
+            // In this case we need to refresh the session ASAP.
+            // Repeat the method call until we get a successful
+            // response.
+            refreshSessionIfNeeded(server, false)
+            return getFeedGenerators(server, feedUris)
+        }
+
+        return response.body()
+    }
+
+    override suspend fun getFeedGenerator(server: String, feedUri: String): BskyGetFeedGeneratorResult {
+        val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
+        val accessInfo = App.instance.authDataStore.data
+            .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
+
+        val response = httpClient.get("https://$server/xrpc/app.bsky.feed.getFeedGenerator") {
+            contentType(ContentType.Application.Json)
+            setBody(feedUri)
+
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $accessInfo")
+            }
+        }
+
+        if (response.status.value == 400 || response.status.value == 401) {
+            // In this case we need to refresh the session ASAP.
+            // Repeat the method call until we get a successful
+            // response.
+            refreshSessionIfNeeded(server, false)
+            return getFeedGenerator(server, feedUri)
+        }
+
+        return response.body()
+    }
+
+    override suspend fun getFeed(server: String, input: BskyGetFeedInput): BskyGetFeedResult {
+        val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
+        val accessInfo = App.instance.authDataStore.data
+            .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
+
+        val response = httpClient.get("https://$server/xrpc/app.bsky.feed.getFeed") {
+            parameter("limit", input.limit)
+            parameter("feed", input.feed)
+
+            if (input.cursor != null) {
+                parameter("cursor", input.cursor)
+            }
+
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $accessInfo")
+            }
+        }
+
+        if (response.status.value == 400 || response.status.value == 401) {
+            // In this case we need to refresh the session ASAP.
+            // Repeat the method call until we get a successful
+            // response.
+            refreshSessionIfNeeded(server, false)
+            return getFeed(server, input)
         }
 
         return response.body()

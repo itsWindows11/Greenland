@@ -4,7 +4,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.RssFeed
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 
@@ -16,8 +15,7 @@ data class BottomNavigationItem(
     companion object {
         val items get() = listOf(
             BottomNavigationItem("Home", Icons.Filled.Home, "home"),
-            BottomNavigationItem("Search", Icons.Filled.Search, "search"),
-            BottomNavigationItem("Feeds", Icons.Filled.RssFeed, "feeds"),
+            BottomNavigationItem("Explore", Icons.Filled.Search, "explore"),
             BottomNavigationItem("Notifications", Icons.Filled.Notifications, "notifications"),
             BottomNavigationItem("Profile", Icons.Filled.AccountCircle, "profile")
         )

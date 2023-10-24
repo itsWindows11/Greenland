@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -26,11 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.activities.home.HomeActivity
 import dev.itswin11.greenland.authDataStore
@@ -41,9 +44,11 @@ import kotlinx.coroutines.launch
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             GreenlandTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -57,7 +62,11 @@ class LoginActivity : ComponentActivity() {
     @Preview(showSystemUi = true)
     @Composable
     fun LoginView() {
-        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)) {
+        Column(
+            modifier = Modifier.imePadding(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
+        ) {
             val handle = remember { mutableStateOf("") }
             val password = remember { mutableStateOf("") }
 
@@ -69,7 +78,8 @@ class LoginActivity : ComponentActivity() {
 
             Text(
                 text = "Sign in with Bluesky",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.SemiBold
             )
             Column(modifier = Modifier.width(IntrinsicSize.Max)) {
                 OutlinedTextField(
@@ -80,7 +90,7 @@ class LoginActivity : ComponentActivity() {
                 OutlinedTextField(
                     value = password.value,
                     onValueChange = { password.value = it },
-                    label = { Text("App password") },
+                    label = { Text("Password") },
                     visualTransformation = visualTransformation,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     trailingIcon = {
@@ -103,13 +113,7 @@ class LoginActivity : ComponentActivity() {
     private suspend fun startSignInFlow(handle: String, password: String) {
         val result = App.atProtoClient.createSession("bsky.social", handle, password)
 
-        authDataStore.updateData { it ->
-            /*it[SettingsConstants.ACCESS_JWT] = result.accessJwt
-            it[SettingsConstants.REFRESH_JWT] = result.refreshJwt
-            it[SettingsConstants.CURRENT_USER_DID] = result.did
-            it[SettingsConstants.CURRENT_USER_HANDLE] = result.handle
-            it[SettingsConstants.SIGNED_IN] = true*/
-
+        authDataStore.updateData {
             val builder = it.toBuilder()
 
             val authInfoBuilder = AuthInfo.newBuilder()
