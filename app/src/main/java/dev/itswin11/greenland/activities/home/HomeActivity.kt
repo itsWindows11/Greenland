@@ -50,7 +50,7 @@ class HomeActivity : ComponentActivity() {
                     var notificationCount by remember { mutableIntStateOf(0) }
 
                     LaunchedEffect(Unit) {
-                        notificationCount = App.atProtoClient.getUnreadNotificationsCount("bsky.social") + 1
+                        notificationCount = App.atProtoClient.getUnreadNotificationsCount("bsky.social")
                     }
 
                     Column(modifier = Modifier.fillMaxSize()) {
