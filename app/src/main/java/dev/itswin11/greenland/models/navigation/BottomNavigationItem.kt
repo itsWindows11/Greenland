@@ -8,9 +8,10 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 
 data class BottomNavigationItem(
-    val label : String = "",
-    val icon : ImageVector = Icons.Filled.Home,
-    val route : String = ""
+    val label: String = "",
+    val icon: ImageVector = Icons.Filled.Home,
+    val route: String = "",
+    val badgeCount: Int? = null
 ) {
     companion object {
         val items get() = listOf(

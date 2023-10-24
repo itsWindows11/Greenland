@@ -43,4 +43,9 @@ interface IAtProtoClient {
      * Composes a feed from a Bluesky feed generator.
      */
     suspend fun getFeed(server: String, input: BskyGetFeedInput): BskyGetFeedResult
+
+    /**
+     * Gets the unread notification count for the current Bluesky user.
+     */
+    suspend fun getUnreadNotificationsCount(server: String): Int
 }

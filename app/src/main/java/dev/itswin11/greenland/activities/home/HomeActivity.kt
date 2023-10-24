@@ -7,12 +7,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -21,11 +26,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import dev.itswin11.greenland.App
 import dev.itswin11.greenland.models.navigation.BottomNavigationItem
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import dev.itswin11.greenland.views.home.HomeView
 
 class HomeActivity : ComponentActivity() {
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,6 +47,11 @@ class HomeActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     var navigationSelectedItem by remember { mutableIntStateOf(0) }
+                    var notificationCount by remember { mutableIntStateOf(0) }
+
+                    LaunchedEffect(Unit) {
+                        notificationCount = App.atProtoClient.getUnreadNotificationsCount("bsky.social") + 1
+                    }
 
                     Column(modifier = Modifier.fillMaxSize()) {
                         HomeView(modifier = Modifier.weight(1f))
@@ -56,10 +68,25 @@ class HomeActivity : ComponentActivity() {
                                         )
                                     },
                                     icon = {
-                                        Icon(
-                                            navigationItem.icon,
-                                            contentDescription = navigationItem.label
-                                        )
+                                        if (navigationItem.route == "notifications" && notificationCount > 0) {
+                                            BadgedBox(
+                                                badge = {
+                                                    Badge(Modifier.offset((-4).dp, 6.dp)) {
+                                                        Text(if (notificationCount > 99) "99+" else notificationCount.toString())
+                                                    }
+                                                }
+                                            ) {
+                                                Icon(
+                                                    navigationItem.icon,
+                                                    contentDescription = navigationItem.label
+                                                )
+                                            }
+                                        } else {
+                                            Icon(
+                                                navigationItem.icon,
+                                                contentDescription = navigationItem.label
+                                            )
+                                        }
                                     },
                                     onClick = {
                                         navigationSelectedItem = index

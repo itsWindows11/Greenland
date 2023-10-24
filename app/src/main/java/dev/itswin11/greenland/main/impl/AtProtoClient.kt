@@ -10,11 +10,13 @@ import dev.itswin11.greenland.models.BskyGetFeedGeneratorsResult
 import dev.itswin11.greenland.models.BskyGetFeedInput
 import dev.itswin11.greenland.models.BskyGetFeedResult
 import dev.itswin11.greenland.models.BskyGetTimelineInput
+import dev.itswin11.greenland.models.BskyNotificationCount
 import dev.itswin11.greenland.models.BskyPreferencesModel
 import dev.itswin11.greenland.protobuf.AuthInfo
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestRetry
+import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
@@ -40,6 +42,11 @@ class AtProtoClient : IAtProtoClient {
 
         install(HttpRequestRetry) {
             retryOnServerErrors(5)
+        }
+
+        install(ContentEncoding) {
+            gzip()
+            deflate()
         }
     }
 
@@ -237,5 +244,27 @@ class AtProtoClient : IAtProtoClient {
         }
 
         return response.body()
+    }
+
+    override suspend fun getUnreadNotificationsCount(server: String): Int {
+        val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
+        val accessInfo = App.instance.authDataStore.data
+            .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
+
+        val response = httpClient.get("https://$server/xrpc/app.bsky.notification.getUnreadCount") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $accessInfo")
+            }
+        }
+
+        if (response.status.value == 400 || response.status.value == 401) {
+            // In this case we need to refresh the session ASAP.
+            // Repeat the method call until we get a successful
+            // response.
+            refreshSessionIfNeeded(server, false)
+            return getUnreadNotificationsCount(server)
+        }
+
+        return response.body<BskyNotificationCount>().count
     }
 }
