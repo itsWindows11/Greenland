@@ -26,4 +26,8 @@ class App : Application() {
     }
 
     val tokenService: TokenService = TokenService(this)
+
+    override fun onCreate() {
+        super.onCreate()
+    }
 }

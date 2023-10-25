@@ -48,13 +48,11 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.itswin11.greenland.R
 import dev.itswin11.greenland.activities.home.timeAgo
+import dev.itswin11.greenland.main.DateHelpers
 import dev.itswin11.greenland.models.BskyPost
 import dev.itswin11.greenland.models.BskyPostRecord
 import dev.itswin11.greenland.models.BskyProfileViewBasic
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -140,15 +138,7 @@ fun PostContent(modifier: Modifier = Modifier, post: BskyPost, preview: Boolean 
             return@remember 0
         }
 
-        try {
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.ENGLISH)
-                .parse(post.record.createdAt)
-                ?.time ?: 0
-        } catch (_: ParseException) {
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH)
-                .parse(post.record.createdAt)
-                ?.time ?: 0
-        }
+        DateHelpers.parseAtProtoIsoDate(post.record.createdAt)
     }
 
     val timeAgoString = remember { timeAgo(dateInMillis) }
