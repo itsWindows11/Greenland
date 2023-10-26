@@ -3,7 +3,6 @@ package dev.itswin11.greenland.main
 import java.time.Instant
 import java.time.ZonedDateTime
 
-
 sealed class DateHelpers {
     companion object {
         private val supportedFormats: Array<Regex> = arrayOf(

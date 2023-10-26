@@ -1,0 +1,88 @@
+package dev.itswin11.greenland.views
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import dev.itswin11.greenland.models.BskyFeedGeneratorView
+import dev.itswin11.greenland.ui.theme.GreenlandTheme
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FeedCard(modifier: Modifier = Modifier, feedView: BskyFeedGeneratorView) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+        onClick = {},
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(modifier = modifier.padding(8.dp)) {
+            AsyncImage(
+                modifier = Modifier
+                    .width(48.dp)
+                    .height(48.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(feedView.avatar)
+                    .crossfade(500)
+                    .build(),
+                contentDescription = "Avatar of ${feedView.displayName} feed."
+            )
+
+            Column(Modifier.weight(1f).padding(12.dp, 0.dp, 0.dp, 0.dp).height(48.dp), verticalArrangement = Arrangement.Center) {
+                Text(
+                    text = feedView.displayName,
+                    fontWeight = FontWeight.SemiBold
+                )
+
+                if (!feedView.description.isNullOrEmpty()) {
+                    Spacer(Modifier.height(4.dp))
+
+                    Text(
+                        text = feedView.description,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+                        maxLines = 2
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FeedCardPreview() {
+    val sampleFeedGeneratorView = BskyFeedGeneratorView(
+        "",
+        "",
+        "",
+        "Feed Name",
+        "Feed Description",
+        indexedAt = ""
+    )
+
+    GreenlandTheme {
+        FeedCard(feedView = sampleFeedGeneratorView)
+    }
+}

@@ -5,6 +5,8 @@ import dev.itswin11.greenland.models.BskyGetFeedGeneratorResult
 import dev.itswin11.greenland.models.BskyGetFeedGeneratorsResult
 import dev.itswin11.greenland.models.BskyGetFeedInput
 import dev.itswin11.greenland.models.BskyGetFeedResult
+import dev.itswin11.greenland.models.BskyGetSuggestedFeedsInput
+import dev.itswin11.greenland.models.BskyGetSuggestedFeedsResult
 import dev.itswin11.greenland.models.BskyGetTimelineInput
 import dev.itswin11.greenland.models.BskyPreferencesModel
 
@@ -48,4 +50,9 @@ interface IAtProtoClient {
      * Gets the unread notification count for the current Bluesky user.
      */
     suspend fun getUnreadNotificationsCount(server: String): Int
+
+    /**
+     * Gets suggested feeds for the current Bluesky user.
+     */
+    suspend fun getSuggestedFeeds(server: String, input: BskyGetSuggestedFeedsInput): BskyGetSuggestedFeedsResult
 }

@@ -133,14 +133,7 @@ fun PostView(
 fun PostContent(modifier: Modifier = Modifier, post: BskyPost, preview: Boolean = false) {
     val displayName = remember { post.author.displayName ?: post.author.handle }
 
-    val dateInMillis = remember {
-        if (preview) {
-            return@remember 0
-        }
-
-        DateHelpers.parseAtProtoIsoDate(post.record.createdAt)
-    }
-
+    val dateInMillis = remember { if (preview) 0 else DateHelpers.parseAtProtoIsoDate(post.record.createdAt) }
     val timeAgoString = remember { timeAgo(dateInMillis) }
 
     Column(modifier) {

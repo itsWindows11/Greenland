@@ -3,6 +3,8 @@ package dev.itswin11.greenland.activities.home
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -26,9 +28,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.models.navigation.BottomNavigationItem
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
+import dev.itswin11.greenland.views.home.ExploreView
 import dev.itswin11.greenland.views.home.HomeView
 
 class HomeActivity : ComponentActivity() {
@@ -48,13 +55,33 @@ class HomeActivity : ComponentActivity() {
                 ) {
                     var navigationSelectedItem by remember { mutableIntStateOf(0) }
                     var notificationCount by remember { mutableIntStateOf(0) }
+                    val navController = rememberNavController()
 
                     LaunchedEffect(Unit) {
                         notificationCount = App.atProtoClient.getUnreadNotificationsCount("bsky.social")
                     }
 
                     Column(modifier = Modifier.fillMaxSize()) {
-                        HomeView(modifier = Modifier.weight(1f))
+                        NavHost(
+                            modifier = Modifier.weight(1f),
+                            startDestination = "home",
+                            navController = navController,
+                            enterTransition = { EnterTransition.None },
+                            exitTransition = { ExitTransition.None }
+                        ) {
+                            composable("home") {
+                                HomeView()
+                            }
+                            composable("explore") {
+                                ExploreView()
+                            }
+                            composable("notifications") {
+                                Text("Notifications")
+                            }
+                            composable("profile") {
+                                Text("Profile")
+                            }
+                        }
 
                         NavigationBar {
                             BottomNavigationItem.items.forEachIndexed { index, navigationItem ->
@@ -90,6 +117,13 @@ class HomeActivity : ComponentActivity() {
                                     },
                                     onClick = {
                                         navigationSelectedItem = index
+                                        navController.navigate(navigationItem.route) {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
+                                        }
                                     }
                                 )
                             }

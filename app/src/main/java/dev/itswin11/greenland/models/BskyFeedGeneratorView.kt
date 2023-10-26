@@ -8,7 +8,7 @@ data class BskyFeedGeneratorView(
     val uri: String,
     val cid: String,
     @SerializedName("did")
-    val creatorDid: String,
+    val creatorDid: String? = null,
     // val creator: Any
     val displayName: String,
     val description: String? = null,

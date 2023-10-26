@@ -9,6 +9,8 @@ import dev.itswin11.greenland.models.BskyGetFeedGeneratorResult
 import dev.itswin11.greenland.models.BskyGetFeedGeneratorsResult
 import dev.itswin11.greenland.models.BskyGetFeedInput
 import dev.itswin11.greenland.models.BskyGetFeedResult
+import dev.itswin11.greenland.models.BskyGetSuggestedFeedsInput
+import dev.itswin11.greenland.models.BskyGetSuggestedFeedsResult
 import dev.itswin11.greenland.models.BskyGetTimelineInput
 import dev.itswin11.greenland.models.BskyNotificationCount
 import dev.itswin11.greenland.models.BskyPreferencesModel
@@ -271,5 +273,36 @@ class AtProtoClient : IAtProtoClient {
         }
 
         return response.body<BskyNotificationCount>().count
+    }
+
+    override suspend fun getSuggestedFeeds(
+        server: String,
+        input: BskyGetSuggestedFeedsInput
+    ): BskyGetSuggestedFeedsResult {
+        val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
+        val accessInfo = App.instance.authDataStore.data
+            .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
+
+        val response = httpClient.get("https://$server/xrpc/app.bsky.feed.getSuggestedFeeds") {
+            parameter("limit", input.limit)
+
+            if (input.cursor != null) {
+                parameter("cursor", input.cursor)
+            }
+
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $accessInfo")
+            }
+        }
+
+        if (response.status.value == 400 || response.status.value == 401) {
+            // In this case we need to refresh the session ASAP.
+            // Repeat the method call until we get a successful
+            // response.
+            refreshSessionIfNeeded(server, false)
+            return getSuggestedFeeds(server, input)
+        }
+
+        return response.body()
     }
 }

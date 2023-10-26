@@ -48,21 +48,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.itswin11.greenland.App
-import dev.itswin11.greenland.models.BskyFeedViewPost
 import dev.itswin11.greenland.models.BskyGetTimelineInput
+import dev.itswin11.greenland.models.parcels.FeedViewPostsParcel
 import dev.itswin11.greenland.views.PostsList
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun HomeView(modifier: Modifier = Modifier) {
-    val posts = remember { mutableStateOf<List<BskyFeedViewPost>?>(null) }
+    val posts = rememberSaveable { mutableStateOf<FeedViewPostsParcel?>(null) }
+    val postsInitiallyLoaded = rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        posts.value = App.atProtoClient.getHomeTimeline(
+        if (postsInitiallyLoaded.value)
+            return@LaunchedEffect
+
+        posts.value = FeedViewPostsParcel(App.atProtoClient.getHomeTimeline(
             "bsky.social",
             BskyGetTimelineInput(limit = 100)
-        ).feed
+        ).feed)
+
+        postsInitiallyLoaded.value = true
     }
 
     val refreshing = remember { mutableStateOf(false) }
@@ -77,10 +83,12 @@ fun HomeView(modifier: Modifier = Modifier) {
         onRefresh = {
             coroutineScope.launch {
                 refreshing.value = true
-                posts.value = App.atProtoClient.getHomeTimeline(
+
+                posts.value = FeedViewPostsParcel(App.atProtoClient.getHomeTimeline(
                     "bsky.social",
                     BskyGetTimelineInput(limit = 100)
-                ).feed
+                ).feed)
+
                 refreshing.value = false
 
                 scrollState.animateScrollToItem(0, 0)
@@ -125,21 +133,23 @@ fun HomeView(modifier: Modifier = Modifier) {
                         Icon(
                             Icons.Rounded.ChevronRight,
                             contentDescription = "",
-                            modifier = Modifier.rotate(90f).offset(2.dp, (-4).dp)
+                            modifier = Modifier
+                                .rotate(90f)
+                                .offset(2.dp, (-4).dp)
                         )
                     }
                 },
                 scrollBehavior = pinnedScrollBehavior
             )
 
-            if (posts.value != null) {
+            if (posts.value?.posts != null) {
                 PostsList(
                     Modifier
                         .weight(1f)
                         .pullRefresh(pullRefreshState)
                         .fillMaxWidth(),
                     scrollState,
-                    posts.value!!,
+                    posts.value!!.posts!!,
                     pullRefreshState,
                     refreshing,
                     pinnedScrollBehavior.nestedScrollConnection,
