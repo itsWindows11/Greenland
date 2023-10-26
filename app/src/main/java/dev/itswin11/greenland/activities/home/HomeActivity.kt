@@ -114,15 +114,15 @@ fun timeAgo(time: Long): String {
 
     return when {
         diff < minute -> "now"
-        diff < 2 * minute -> "m"
+        diff < 2 * minute -> "1m"
         diff < hour -> "${diff / minute}m"
-        diff < 2 * hour -> "h"
+        diff < 2 * hour -> "1h"
         diff < day -> "${diff / hour}h"
         diff < 2 * day -> "1d"
         diff < week -> "${diff / day}d"
-        diff < 2 * week -> "w"
+        diff < 2 * week -> "1w"
         diff < month -> "${diff / week}w"
-        diff < 2 * month -> "mo"
+        diff < 2 * month -> "1mo"
         diff < year -> "${diff / month}mo"
         else -> "${diff / year}y"
     }
