@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
 import java.util.Calendar
 
-class AtProtoClient : IAtProtoClient {
+class AtProtoClient(private val server: String) : IAtProtoClient {
     private val httpClient: HttpClient = HttpClient {
         install(ContentNegotiation) {
             json(Json {
@@ -57,7 +57,7 @@ class AtProtoClient : IAtProtoClient {
         }
     }
 
-    override suspend fun createSession(server: String, identifier: String, password: String): AtProtoCreateSessionResult {
+    override suspend fun createSession(identifier: String, password: String): AtProtoCreateSessionResult {
         val response = httpClient.post("https://$server/xrpc/com.atproto.server.createSession") {
             contentType(ContentType.Application.Json)
             setBody(AtProtoSessionCredentials(identifier, password))
@@ -66,7 +66,7 @@ class AtProtoClient : IAtProtoClient {
         return response.body()
     }
 
-    override suspend fun refreshSessionIfNeeded(server: String, checkForExpiration: Boolean) {
+    override suspend fun refreshSessionIfNeeded(checkForExpiration: Boolean) {
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
 
         val accessInfo = App.instance.tokenService.getCurrentAccessTokenInfo(currentAccountIndex)
@@ -120,7 +120,7 @@ class AtProtoClient : IAtProtoClient {
         accessInfo2.hashCode()
     }
 
-    override suspend fun getHomeTimeline(server: String, input: BskyGetTimelineInput): BskyGetFeedResult {
+    override suspend fun getHomeTimeline(input: BskyGetTimelineInput): BskyGetFeedResult {
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
         val accessInfo = App.instance.authDataStore.data
             .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
@@ -145,14 +145,14 @@ class AtProtoClient : IAtProtoClient {
             // In this case we need to refresh the session ASAP.
             // Repeat the method call until we get a successful
             // response.
-            refreshSessionIfNeeded(server, false)
-            return getHomeTimeline(server, input)
+            refreshSessionIfNeeded(false)
+            return getHomeTimeline(input)
         }
 
         return response.body()
     }
 
-    override suspend fun getPreferences(server: String): BskyPreferencesModel {
+    override suspend fun getPreferences(): BskyPreferencesModel {
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
         val accessInfo = App.instance.authDataStore.data
             .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
@@ -167,14 +167,14 @@ class AtProtoClient : IAtProtoClient {
             // In this case we need to refresh the session ASAP.
             // Repeat the method call until we get a successful
             // response.
-            refreshSessionIfNeeded(server, false)
-            return getPreferences(server)
+            refreshSessionIfNeeded(false)
+            return getPreferences()
         }
 
         return BskyPreferencesModel(response.body())
     }
 
-    override suspend fun getFeedGenerators(server: String, feedUris: Iterable<String>): BskyGetFeedGeneratorsResult {
+    override suspend fun getFeedGenerators(feedUris: Iterable<String>): BskyGetFeedGeneratorsResult {
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
         val accessInfo = App.instance.authDataStore.data
             .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
@@ -192,14 +192,14 @@ class AtProtoClient : IAtProtoClient {
             // In this case we need to refresh the session ASAP.
             // Repeat the method call until we get a successful
             // response.
-            refreshSessionIfNeeded(server, false)
-            return getFeedGenerators(server, feedUris)
+            refreshSessionIfNeeded(false)
+            return getFeedGenerators(feedUris)
         }
 
         return response.body()
     }
 
-    override suspend fun getFeedGenerator(server: String, feedUri: String): BskyGetFeedGeneratorResult {
+    override suspend fun getFeedGenerator(feedUri: String): BskyGetFeedGeneratorResult {
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
         val accessInfo = App.instance.authDataStore.data
             .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
@@ -217,14 +217,14 @@ class AtProtoClient : IAtProtoClient {
             // In this case we need to refresh the session ASAP.
             // Repeat the method call until we get a successful
             // response.
-            refreshSessionIfNeeded(server, false)
-            return getFeedGenerator(server, feedUri)
+            refreshSessionIfNeeded(false)
+            return getFeedGenerator(feedUri)
         }
 
         return response.body()
     }
 
-    override suspend fun getFeed(server: String, input: BskyGetFeedInput): BskyGetFeedResult {
+    override suspend fun getFeed(input: BskyGetFeedInput): BskyGetFeedResult {
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
         val accessInfo = App.instance.authDataStore.data
             .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
@@ -246,14 +246,14 @@ class AtProtoClient : IAtProtoClient {
             // In this case we need to refresh the session ASAP.
             // Repeat the method call until we get a successful
             // response.
-            refreshSessionIfNeeded(server, false)
-            return getFeed(server, input)
+            refreshSessionIfNeeded(false)
+            return getFeed(input)
         }
 
         return response.body()
     }
 
-    override suspend fun getUnreadNotificationsCount(server: String): Int {
+    override suspend fun getUnreadNotificationsCount(): Int {
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
         val accessInfo = App.instance.authDataStore.data
             .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
@@ -268,17 +268,14 @@ class AtProtoClient : IAtProtoClient {
             // In this case we need to refresh the session ASAP.
             // Repeat the method call until we get a successful
             // response.
-            refreshSessionIfNeeded(server, false)
-            return getUnreadNotificationsCount(server)
+            refreshSessionIfNeeded(false)
+            return getUnreadNotificationsCount()
         }
 
         return response.body<BskyNotificationCount>().count
     }
 
-    override suspend fun getSuggestedFeeds(
-        server: String,
-        input: BskyGetSuggestedFeedsInput
-    ): BskyGetSuggestedFeedsResult {
+    override suspend fun getSuggestedFeeds(input: BskyGetSuggestedFeedsInput): BskyGetSuggestedFeedsResult {
         val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
         val accessInfo = App.instance.authDataStore.data
             .map { preferences -> preferences.authInfoList[currentAccountIndex].accessJwt }.first()
@@ -299,8 +296,8 @@ class AtProtoClient : IAtProtoClient {
             // In this case we need to refresh the session ASAP.
             // Repeat the method call until we get a successful
             // response.
-            refreshSessionIfNeeded(server, false)
-            return getSuggestedFeeds(server, input)
+            refreshSessionIfNeeded(false)
+            return getSuggestedFeeds(input)
         }
 
         return response.body()

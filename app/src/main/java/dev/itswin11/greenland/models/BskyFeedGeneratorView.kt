@@ -9,7 +9,7 @@ data class BskyFeedGeneratorView(
     val cid: String,
     @SerializedName("did")
     val creatorDid: String? = null,
-    // val creator: Any
+    val creator: BskyProfileViewBasic, // TODO: BskyProfileView
     val displayName: String,
     val description: String? = null,
     val avatar: String? = null,

@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.itswin11.greenland.models.BskyFeedGeneratorView
+import dev.itswin11.greenland.models.BskyProfileViewBasic
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,9 +61,8 @@ fun FeedCard(modifier: Modifier = Modifier, feedView: BskyFeedGeneratorView) {
                     Spacer(Modifier.height(4.dp))
 
                     Text(
-                        text = feedView.description,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                        maxLines = 2
+                        text = "by @${feedView.creator.handle}",
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                 }
             }
@@ -77,6 +77,7 @@ fun FeedCardPreview() {
         "",
         "",
         "",
+        BskyProfileViewBasic("", "@test.bsky.social"),
         "Feed Name",
         "Feed Description",
         indexedAt = ""

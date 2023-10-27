@@ -47,31 +47,22 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import dev.itswin11.greenland.App
-import dev.itswin11.greenland.models.BskyGetTimelineInput
-import dev.itswin11.greenland.models.parcels.FeedViewPostsParcel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.itswin11.greenland.viewmodels.HomeViewModel
 import dev.itswin11.greenland.views.PostsList
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun HomeView(modifier: Modifier = Modifier) {
-    val posts = rememberSaveable { mutableStateOf<FeedViewPostsParcel?>(null) }
-    val postsInitiallyLoaded = rememberSaveable { mutableStateOf(false) }
-
+fun HomeView(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel()) {
     LaunchedEffect(Unit) {
-        if (postsInitiallyLoaded.value)
-            return@LaunchedEffect
-
-        posts.value = FeedViewPostsParcel(App.atProtoClient.getHomeTimeline(
-            "bsky.social",
-            BskyGetTimelineInput(limit = 100)
-        ).feed)
-
-        postsInitiallyLoaded.value = true
+        viewModel.loadPosts()
     }
 
-    val refreshing = remember { mutableStateOf(false) }
+    val refreshing = viewModel.refreshing.collectAsStateWithLifecycle()
+    val posts = viewModel.posts.collectAsStateWithLifecycle()
+
     val scrollState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
     val coroutineScope = rememberCoroutineScope()
@@ -81,17 +72,10 @@ fun HomeView(modifier: Modifier = Modifier) {
     val pullRefreshState = rememberPullRefreshState(
         refreshing = refreshing.value,
         onRefresh = {
-            coroutineScope.launch {
-                refreshing.value = true
-
-                posts.value = FeedViewPostsParcel(App.atProtoClient.getHomeTimeline(
-                    "bsky.social",
-                    BskyGetTimelineInput(limit = 100)
-                ).feed)
-
-                refreshing.value = false
-
-                scrollState.animateScrollToItem(0, 0)
+            viewModel.refreshPosts {
+                coroutineScope.launch {
+                    scrollState.animateScrollToItem(0, 0)
+                }
             }
         },
         refreshThreshold = 50.dp,
@@ -142,14 +126,14 @@ fun HomeView(modifier: Modifier = Modifier) {
                 scrollBehavior = pinnedScrollBehavior
             )
 
-            if (posts.value?.posts != null) {
+            if (posts.value != null) {
                 PostsList(
                     Modifier
                         .weight(1f)
                         .pullRefresh(pullRefreshState)
                         .fillMaxWidth(),
                     scrollState,
-                    posts.value!!.posts!!,
+                    posts.value!!,
                     pullRefreshState,
                     refreshing,
                     pinnedScrollBehavior.nestedScrollConnection,

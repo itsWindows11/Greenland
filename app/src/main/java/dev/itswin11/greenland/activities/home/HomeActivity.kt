@@ -33,6 +33,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import dev.itswin11.greenland.App
+import dev.itswin11.greenland.R
 import dev.itswin11.greenland.models.navigation.BottomNavigationItem
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import dev.itswin11.greenland.views.home.ExploreView
@@ -58,7 +59,7 @@ class HomeActivity : ComponentActivity() {
                     val navController = rememberNavController()
 
                     LaunchedEffect(Unit) {
-                        notificationCount = App.atProtoClient.getUnreadNotificationsCount("bsky.social")
+                        notificationCount = App.atProtoClient.getUnreadNotificationsCount()
                     }
 
                     Column(modifier = Modifier.fillMaxSize()) {
@@ -123,6 +124,13 @@ class HomeActivity : ComponentActivity() {
                                             }
                                             launchSingleTop = true
                                             restoreState = true
+
+                                            anim {
+                                                enter = R.animator.empty_animation
+                                                exit = R.animator.empty_animation
+                                                popEnter = R.animator.empty_animation
+                                                popExit = R.animator.empty_animation
+                                            }
                                         }
                                     }
                                 )

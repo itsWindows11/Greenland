@@ -111,7 +111,7 @@ class LoginActivity : ComponentActivity() {
     }
 
     private suspend fun startSignInFlow(handle: String, password: String) {
-        val result = App.atProtoClient.createSession("bsky.social", handle, password)
+        val result = App.atProtoClient.createSession(handle, password)
 
         authDataStore.updateData {
             val builder = it.toBuilder()

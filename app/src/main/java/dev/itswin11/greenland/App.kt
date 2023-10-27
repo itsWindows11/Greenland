@@ -18,7 +18,7 @@ val Context.authDataStore: DataStore<AuthInfoContainer> by dataStore(
 class App : Application() {
     companion object {
         lateinit var instance: App
-        val atProtoClient: IAtProtoClient = AtProtoClient()
+        val atProtoClient: IAtProtoClient = AtProtoClient("bsky.social")
     }
 
     init {
