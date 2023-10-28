@@ -1,4 +1,4 @@
-<p align="center"><img src="https://github.com/itsWindows11/Greenland/assets/81253203/828ebb0f-7581-456d-b393-cc1e30b2a0c9" width="128px"></p>
+<p align="center"><img src="https://github.com/itsWindows11/Greenland/blob/master/images/icon.png" width="128px"></p>
 
 <h1 align="center">Greenland</h1>
 
