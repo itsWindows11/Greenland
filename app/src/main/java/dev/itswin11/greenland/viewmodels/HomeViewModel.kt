@@ -28,9 +28,7 @@ class HomeViewModel : ViewModel() {
             if (_postsInitiallyLoaded.value)
                 return@launch
 
-            _posts.value = App.atProtoClient.getHomeTimeline(
-                BskyGetTimelineInput(limit = 100)
-            ).feed
+            _posts.value = fetchPosts()
 
             _postsInitiallyLoaded.value = true
         }
@@ -40,13 +38,23 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _refreshing.value = true
 
-            _posts.value = App.atProtoClient.getHomeTimeline(
-                BskyGetTimelineInput(limit = 100)
-            ).feed
+            _posts.value = fetchPosts()
 
             _refreshing.value = false
 
             callback()
         }
+    }
+
+    private suspend fun fetchPosts(): List<BskyFeedViewPost> {
+        val postUris: HashSet<String> = HashSet()
+
+        // We filter here because there are cases where the PDS
+        // will provide us the post as parent/main, and another
+        // where the same post is just the main post. So we
+        // filter out the items that meet the second case.
+        return App.atProtoClient.getHomeTimeline(
+            BskyGetTimelineInput(limit = 100)
+        ).feed.filter { !(!postUris.add(it.post.uri) && it.reply?.parent == null) }
     }
 }

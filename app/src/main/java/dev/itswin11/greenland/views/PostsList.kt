@@ -36,7 +36,7 @@ fun PostsList(
                 .nestedScroll(fabConnection),
             state = scrollState
         ) {
-            items(posts.size, key = { posts[it].post.uri }) { index ->
+            items(posts.size) { index ->
                 val post = remember { posts[index] }
 
                 Column {

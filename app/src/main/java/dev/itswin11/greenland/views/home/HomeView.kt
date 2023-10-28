@@ -9,6 +9,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -100,7 +101,7 @@ fun HomeView(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel
 
     val pinnedScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarState)
 
-    Box(modifier) {
+    Box(modifier.fillMaxSize()) {
         Column {
             CenterAlignedTopAppBar(
                 title = {
