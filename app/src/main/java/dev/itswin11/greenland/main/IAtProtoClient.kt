@@ -7,6 +7,7 @@ import dev.itswin11.greenland.models.BskyGetFeedInput
 import dev.itswin11.greenland.models.BskyGetFeedResult
 import dev.itswin11.greenland.models.BskyGetSuggestedFeedsInput
 import dev.itswin11.greenland.models.BskyGetSuggestedFeedsResult
+import dev.itswin11.greenland.models.BskyGetSuggestedFollowsByActorResult
 import dev.itswin11.greenland.models.BskyGetTimelineInput
 import dev.itswin11.greenland.models.BskyPreferencesModel
 
@@ -55,4 +56,9 @@ interface IAtProtoClient {
      * Gets suggested feeds for the current Bluesky user.
      */
     suspend fun getSuggestedFeeds(input: BskyGetSuggestedFeedsInput): BskyGetSuggestedFeedsResult
+
+    /**
+     * Gets suggested follows for a given Bluesky actor.
+     */
+    suspend fun getSuggestedFollowsByActor(actor: String): BskyGetSuggestedFollowsByActorResult
 }

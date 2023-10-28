@@ -1,20 +1,23 @@
-package dev.itswin11.greenland.views
+package dev.itswin11.greenland.views.explore
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -24,49 +27,41 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import dev.itswin11.greenland.models.BskyFeedGeneratorView
 import dev.itswin11.greenland.models.BskyProfileViewBasic
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeedCard(modifier: Modifier = Modifier, feedView: BskyFeedGeneratorView) {
-    // TODO: Navigation to feed view functionality
+fun ExploreSuggestedFollowItem(modifier: Modifier = Modifier, profileView: BskyProfileViewBasic) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         onClick = {},
         shape = RoundedCornerShape(8.dp)
     ) {
-        Row(modifier = modifier.padding(8.dp)) {
+        Row(Modifier.fillMaxWidth().padding(12.dp, 8.dp)) {
             AsyncImage(
                 modifier = Modifier
                     .width(48.dp)
                     .height(48.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.surfaceVariant),
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(feedView.avatar)
+                    .data(profileView.avatar!!)
                     .crossfade(500)
                     .build(),
-                contentDescription = "Avatar of ${feedView.displayName} feed."
+                contentDescription = "Avatar of ${profileView.displayName}."
             )
 
-            Column(
-                Modifier.weight(1f).padding(12.dp, 0.dp, 0.dp, 0.dp),
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = feedView.displayName,
-                    fontWeight = FontWeight.SemiBold
-                )
-
+            Column(Modifier.padding(start = 12.dp, end = 12.dp).weight(1f)) {
+                Text(profileView.displayName!!, fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(4.dp))
+                Text("@${profileView.handle}", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+            }
 
-                Text(
-                    text = "by @${feedView.creator.handle}",
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
+            // TODO: Make this button actually functional.
+            Button(onClick = { }, modifier = Modifier.align(Alignment.CenterVertically)) {
+                Text("Follow")
             }
         }
     }
@@ -74,18 +69,18 @@ fun FeedCard(modifier: Modifier = Modifier, feedView: BskyFeedGeneratorView) {
 
 @Preview(showBackground = true)
 @Composable
-fun FeedCardPreview() {
-    val sampleFeedGeneratorView = BskyFeedGeneratorView(
-        "",
-        "",
-        "",
-        BskyProfileViewBasic("", "@test.bsky.social"),
-        "Feed Name",
-        "Feed Description",
-        indexedAt = ""
+fun ExploreSuggestedFollowItemPreview() {
+    val sampleProfile = BskyProfileViewBasic(
+        "DID",
+        "handle",
+        "Display Name",
+        "https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar-300x300.jpg"
     )
 
     GreenlandTheme {
-        FeedCard(feedView = sampleFeedGeneratorView)
+        ExploreSuggestedFollowItem(
+            modifier = Modifier.width(400.dp),
+            profileView = sampleProfile
+        )
     }
 }

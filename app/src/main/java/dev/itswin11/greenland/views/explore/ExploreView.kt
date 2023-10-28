@@ -1,4 +1,4 @@
-package dev.itswin11.greenland.views.home
+package dev.itswin11.greenland.views.explore
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +49,8 @@ import dev.itswin11.greenland.views.FeedCard
 @Composable
 fun ExploreView(modifier: Modifier = Modifier, viewModel: ExploreViewModel = viewModel()) {
     val feeds = viewModel.suggestedFeeds.collectAsStateWithLifecycle()
+    val suggestedFollows = viewModel.suggestedFollows.collectAsStateWithLifecycle()
+
     val refreshing = viewModel.refreshing.collectAsStateWithLifecycle()
     val initiallyLoaded = viewModel.initiallyLoaded.collectAsStateWithLifecycle()
 
@@ -120,6 +122,29 @@ fun ExploreView(modifier: Modifier = Modifier, viewModel: ExploreViewModel = vie
                         Spacer(Modifier.height(4.dp))
 
                         Divider()
+
+                        Spacer(Modifier.height(4.dp))
+
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                            onClick = {},
+                            shape = RoundedCornerShape(0.dp)
+                        ) {
+                            Text(
+                                "Suggested follows",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = Modifier.padding(20.dp, 8.dp)
+                            )
+                        }
+                    }
+
+                    items(suggestedFollows.value?.size ?: 0) { index ->
+                        ExploreSuggestedFollowItem(
+                            modifier = Modifier.padding(8.dp, 4.dp),
+                            profileView = suggestedFollows.value!![index]
+                        )
                     }
                 }
 
@@ -141,7 +166,7 @@ fun ExploreView(modifier: Modifier = Modifier, viewModel: ExploreViewModel = vie
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(
-                modifier = Modifier.requiredWidth(32.dp),
+                modifier = Modifier.requiredWidth(48.dp),
                 color = MaterialTheme.colorScheme.secondary
             )
         }

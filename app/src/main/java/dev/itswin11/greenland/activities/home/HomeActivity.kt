@@ -36,7 +36,7 @@ import dev.itswin11.greenland.App
 import dev.itswin11.greenland.R
 import dev.itswin11.greenland.models.navigation.BottomNavigationItem
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
-import dev.itswin11.greenland.views.home.ExploreView
+import dev.itswin11.greenland.views.explore.ExploreView
 import dev.itswin11.greenland.views.home.HomeView
 
 class HomeActivity : ComponentActivity() {

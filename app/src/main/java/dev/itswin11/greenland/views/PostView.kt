@@ -129,6 +129,7 @@ fun PostView(
     }
 }
 
+// TODO: Implement post interactions
 @Composable
 fun PostContent(modifier: Modifier = Modifier, post: BskyPost, preview: Boolean = false) {
     val displayName = remember { post.author.displayName ?: post.author.handle }

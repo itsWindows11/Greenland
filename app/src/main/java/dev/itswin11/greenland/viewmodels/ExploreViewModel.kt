@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.models.BskyFeedGeneratorView
 import dev.itswin11.greenland.models.BskyGetSuggestedFeedsInput
+import dev.itswin11.greenland.models.BskyProfileViewBasic
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +22,10 @@ class ExploreViewModel : ViewModel() {
     private val _suggestedFeeds = MutableStateFlow<List<BskyFeedGeneratorView>?>(null)
     val suggestedFeeds = _suggestedFeeds.asStateFlow()
 
+    // suggestedFollows: List<BskyProfileViewBasic>?
+    private val _suggestedFollows = MutableStateFlow<List<BskyProfileViewBasic>?>(null) // TODO: BskyProfileView
+    val suggestedFollows = _suggestedFollows.asStateFlow()
+
     fun loadData(isRefresh: Boolean = false) {
         viewModelScope.launch {
             if (_initiallyLoaded.value && !isRefresh)
@@ -31,13 +36,14 @@ class ExploreViewModel : ViewModel() {
 
             awaitAll(
                 async {
-                    _suggestedFeeds.value = App.atProtoClient.getSuggestedFeeds(
-                        BskyGetSuggestedFeedsInput(5)
-                    ).feeds.subList(0, 5)
+                    _suggestedFeeds.value = App.atProtoClient.getSuggestedFeeds(BskyGetSuggestedFeedsInput(5))
+                        .feeds.subList(0, 5)
                 },
                 async {
-                    // TODO: Suggested users and users on network
+                    _suggestedFollows.value = App.atProtoClient.getSuggestedFollowsByActor("simplebear.bsky.social")
+                        .suggestions
                 }
+                // TODO: Users on network
             )
 
             if (!isRefresh)
