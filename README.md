@@ -4,6 +4,10 @@
 
 <p align="center">A native Bluesky/AT Protocol client, for Android.</p>
 
+<a href="https://discord.gg/8DHbxeFgwz">
+    <p align="center"><img src="https://img.shields.io/discord/1167844115115950200?logo=discord&label=Discord&labelColor=%237289DA&color=%235865F2%&style=for-the-badge"></img></a></p>
+</a>
+
 ## Current features
 
 - Basic home timeline
