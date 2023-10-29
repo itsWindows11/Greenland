@@ -6,7 +6,8 @@ import kotlinx.serialization.Serializable
 data class BskyProfileViewerState(
     val muted: Boolean,
     val blockedBy: Boolean,
-    val blocking: String,
-    val following: String,
-    val followedBy: String
+    val blocking: String? = null,
+    // TODO: blockingByList
+    val following: String? = null,
+    val followedBy: String? = null,
 )
