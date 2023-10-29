@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,7 +18,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.MoreHoriz
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -63,7 +62,7 @@ fun PostView(
     preview: Boolean = false
 ) {
     val displayName = remember { post.author.displayName ?: post.author.handle }
-    val paddingModifier = if (isThreadChild) Modifier.padding(12.dp, 0.dp) else Modifier.padding(
+    val paddingModifier = if (isThreadChild) Modifier.padding(12.dp, 4.dp, 12.dp, 0.dp) else Modifier.padding(
         12.dp,
         12.dp,
         12.dp,
@@ -93,7 +92,8 @@ fun PostView(
                         Divider(
                             Modifier
                                 .width(2.dp)
-                                .fillMaxHeight())
+                                .fillMaxHeight()
+                                .padding(top = 52.dp))
                     }
 
                     AsyncImage(
@@ -174,7 +174,7 @@ fun PostContent(modifier: Modifier = Modifier, post: BskyPost, preview: Boolean 
                 modifier = Modifier
                     .width(48.dp)
                     .height(48.dp)
-                    .offset(12.dp, (-8).dp),
+                    .offset(4.dp, (-4).dp),
                 onClick = {},
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
@@ -183,7 +183,7 @@ fun PostContent(modifier: Modifier = Modifier, post: BskyPost, preview: Boolean 
                 border = BorderStroke(0.dp, Color.Transparent),
                 contentPadding = PaddingValues(0.dp)
             ) {
-                Icon(Icons.Rounded.MoreVert, contentDescription = "More")
+                Icon(Icons.Rounded.MoreHoriz, contentDescription = "More")
             }
         }
 
@@ -191,86 +191,82 @@ fun PostContent(modifier: Modifier = Modifier, post: BskyPost, preview: Boolean 
             Text(post.record.text)
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.offset((-12).dp, 0.dp)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.offset((-12).dp, 0.dp).fillMaxWidth()
+        ) {
+            OutlinedButton(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                border = BorderStroke(0.dp, Color.Transparent),
+                contentPadding = PaddingValues(12.dp, 4.dp)
             ) {
-                OutlinedButton(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    border = BorderStroke(0.dp, Color.Transparent),
-                    contentPadding = PaddingValues(12.dp, 4.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .width(20.dp)
-                                .height(20.dp),
-                            painter = painterResource(R.drawable.ic_comment),
-                            contentDescription = "${post.replyCount} replies"
-                        )
-                        Text(post.replyCount.toString())
-                    }
-                }
-
-                OutlinedButton(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    border = BorderStroke(0.dp, Color.Transparent),
-                    contentPadding = PaddingValues(12.dp, 4.dp)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .width(20.dp)
-                                .height(20.dp),
-                            painter = painterResource(R.drawable.ic_repost),
-                            contentDescription = "${post.repostCount} reposts"
-                        )
-                        Text(post.repostCount.toString())
-                    }
-                }
-
-                OutlinedButton(
-                    onClick = {},
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.Transparent,
-                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                    ),
-                    border = BorderStroke(0.dp, Color.Transparent),
-                    contentPadding = PaddingValues(12.dp, 4.dp)
-                ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            modifier = Modifier
-                                .width(20.dp)
-                                .height(20.dp),
-                            painter = painterResource(R.drawable.ic_like),
-                            contentDescription = "${post.likeCount} likes"
-                        )
-                        Text(post.likeCount.toString())
-                    }
+                    Icon(
+                        modifier = Modifier
+                            .width(20.dp)
+                            .height(20.dp),
+                        painter = painterResource(R.drawable.ic_comment),
+                        contentDescription = "${post.replyCount} replies"
+                    )
+                    Text(post.replyCount.toString())
                 }
             }
 
-            Spacer(Modifier.weight(1f))
+            OutlinedButton(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                border = BorderStroke(0.dp, Color.Transparent),
+                contentPadding = PaddingValues(12.dp, 4.dp)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .width(20.dp)
+                            .height(20.dp),
+                        painter = painterResource(R.drawable.ic_repost),
+                        contentDescription = "${post.repostCount} reposts"
+                    )
+                    Text(post.repostCount.toString())
+                }
+            }
+
+            OutlinedButton(
+                onClick = {},
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                border = BorderStroke(0.dp, Color.Transparent),
+                contentPadding = PaddingValues(12.dp, 4.dp)
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .width(20.dp)
+                            .height(20.dp),
+                        painter = painterResource(R.drawable.ic_like),
+                        contentDescription = "${post.likeCount} likes"
+                    )
+                    Text(post.likeCount.toString())
+                }
+            }
 
             OutlinedButton(
                 modifier = Modifier
@@ -286,8 +282,8 @@ fun PostContent(modifier: Modifier = Modifier, post: BskyPost, preview: Boolean 
             ) {
                 Icon(
                     modifier = Modifier
-                        .width(20.dp)
-                        .height(20.dp),
+                        .width(18.dp)
+                        .height(18.dp),
                     painter = painterResource(R.drawable.ic_share_outlined),
                     contentDescription = "Share"
                 )

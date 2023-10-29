@@ -27,12 +27,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import dev.itswin11.greenland.models.BskyProfileViewBasic
+import dev.itswin11.greenland.models.AtProtoLabel
+import dev.itswin11.greenland.models.BskyProfileView
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
+import kotlinx.collections.immutable.toImmutableList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExploreSuggestedFollowItem(modifier: Modifier = Modifier, profileView: BskyProfileViewBasic) {
+fun ExploreSuggestedFollowItem(modifier: Modifier = Modifier, profileView: BskyProfileView) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -70,11 +72,15 @@ fun ExploreSuggestedFollowItem(modifier: Modifier = Modifier, profileView: BskyP
 @Preview(showBackground = true)
 @Composable
 fun ExploreSuggestedFollowItemPreview() {
-    val sampleProfile = BskyProfileViewBasic(
+    val sampleProfile = BskyProfileView(
         "DID",
         "handle",
         "Display Name",
-        "https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar-300x300.jpg"
+        "https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar-300x300.jpg",
+        "Description",
+        "",
+        null,
+        emptyList<AtProtoLabel>().toImmutableList()
     )
 
     GreenlandTheme {

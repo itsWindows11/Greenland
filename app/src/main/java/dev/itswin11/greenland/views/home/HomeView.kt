@@ -136,7 +136,7 @@ fun HomeView(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel
                     scrollState,
                     posts.value!!,
                     pullRefreshState,
-                    refreshing,
+                    { refreshing.value },
                     pinnedScrollBehavior.nestedScrollConnection,
                     fabNestedScrollConnection
                 )

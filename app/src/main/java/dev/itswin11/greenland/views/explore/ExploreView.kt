@@ -96,7 +96,7 @@ fun ExploreView(modifier: Modifier = Modifier, viewModel: ExploreViewModel = vie
                             Row(Modifier.padding(16.dp, 8.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Text(
                                     "Feeds for you",
-                                    style = MaterialTheme.typography.headlineSmall,
+                                    fontSize = 20.sp,
                                     fontWeight = FontWeight.SemiBold,
                                     modifier = Modifier.padding(4.dp, 0.dp, 0.dp, 0.dp)
                                 )
@@ -133,7 +133,7 @@ fun ExploreView(modifier: Modifier = Modifier, viewModel: ExploreViewModel = vie
                         ) {
                             Text(
                                 "Suggested follows",
-                                style = MaterialTheme.typography.headlineSmall,
+                                fontSize = 20.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 modifier = Modifier.padding(20.dp, 8.dp)
                             )

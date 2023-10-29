@@ -10,7 +10,6 @@ import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,7 +24,7 @@ fun PostsList(
     scrollState: LazyListState,
     posts: List<BskyFeedViewPost>,
     pullRefreshState: PullRefreshState,
-    refreshing: State<Boolean>,
+    refreshing: () -> Boolean,
     titleBarConnection: NestedScrollConnection,
     fabConnection: NestedScrollConnection
 ) {
@@ -52,7 +51,7 @@ fun PostsList(
         }
 
         PullRefreshIndicator(
-            refreshing.value,
+            refreshing(),
             pullRefreshState,
             Modifier.align(Alignment.TopCenter),
             backgroundColor = MaterialTheme.colorScheme.surfaceVariant,

@@ -5,12 +5,14 @@ import androidx.lifecycle.viewModelScope
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.models.BskyFeedViewPost
 import dev.itswin11.greenland.models.BskyGetTimelineInput
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
-    private val _posts = MutableStateFlow<List<BskyFeedViewPost>?>(null)
+    private val _posts = MutableStateFlow<ImmutableList<BskyFeedViewPost>?>(null)
     val posts = _posts.asStateFlow()
 
     private val _postsInitiallyLoaded = MutableStateFlow(false)
@@ -45,7 +47,7 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private suspend fun fetchPosts(): List<BskyFeedViewPost> {
+    private suspend fun fetchPosts(): ImmutableList<BskyFeedViewPost> {
         val postUris: HashSet<String> = HashSet()
 
         // We filter here because there are cases where the PDS
@@ -55,5 +57,6 @@ class HomeViewModel : ViewModel() {
         return App.atProtoClient.getHomeTimeline(
             BskyGetTimelineInput(limit = 100)
         ).feed.filter { !(!postUris.add(it.post.uri) && it.reply?.parent == null) }
+              .toImmutableList()
     }
 }

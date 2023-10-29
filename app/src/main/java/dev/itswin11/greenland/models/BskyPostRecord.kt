@@ -1,8 +1,10 @@
 package dev.itswin11.greenland.models
 
+import androidx.compose.runtime.Immutable
 import com.google.gson.annotations.SerializedName
 import kotlinx.serialization.Serializable
 
+@Immutable
 @Serializable
 data class BskyPostRecord(
     val text: String,
