@@ -27,8 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import dev.itswin11.greenland.models.AtProtoLabel
-import dev.itswin11.greenland.models.BskyProfileView
+import dev.itswin11.greenland.models.atproto.AtProtoLabel
+import dev.itswin11.greenland.models.bsky.BskyProfileView
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.collections.immutable.toImmutableList
 

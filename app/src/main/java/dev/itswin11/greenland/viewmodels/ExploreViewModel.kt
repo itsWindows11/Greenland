@@ -4,9 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.authDataStore
-import dev.itswin11.greenland.models.BskyFeedGeneratorView
-import dev.itswin11.greenland.models.BskyGetSuggestedFeedsInput
-import dev.itswin11.greenland.models.BskyProfileView
+import dev.itswin11.greenland.models.bsky.BskyFeedGeneratorView
+import dev.itswin11.greenland.models.bsky.BskyGetSuggestedFeedsInput
+import dev.itswin11.greenland.models.bsky.BskyProfileView
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.async
@@ -40,7 +40,9 @@ class ExploreViewModel : ViewModel() {
 
             awaitAll(
                 async {
-                    _suggestedFeeds.value = App.atProtoClient.getSuggestedFeeds(BskyGetSuggestedFeedsInput(5))
+                    _suggestedFeeds.value = App.atProtoClient.getSuggestedFeeds(
+                        BskyGetSuggestedFeedsInput(5)
+                    )
                         .feeds.subList(0, 5).toImmutableList()
                 },
                 async {

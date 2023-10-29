@@ -1,4 +1,4 @@
-package dev.itswin11.greenland.models
+package dev.itswin11.greenland.models.bsky
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -14,22 +14,28 @@ class BskyPreferencesModel(preferences: BskyPreferences) {
     private var _feedViewPrefs: FeedViewPrefs = FeedViewPrefs("")
     private var _threadViewPrefs: ThreadViewPrefs = ThreadViewPrefs()
 
-    val savedFeeds: SavedFeedPrefs get() {
+    val savedFeeds: SavedFeedPrefs
+        get() {
         return _savedFeeds
     }
-    val adultContentPrefs: AdultContentPrefs get() {
+    val adultContentPrefs: AdultContentPrefs
+        get() {
         return _adultContentPrefs
     }
-    val contentLabelPrefs: ContentLabelPrefs get() {
+    val contentLabelPrefs: ContentLabelPrefs
+        get() {
         return _contentLabelPrefs
     }
-    val personalDetailsPrefs: PersonalDetailsPrefs get() {
+    val personalDetailsPrefs: PersonalDetailsPrefs
+        get() {
         return _personalDetailsPrefs
     }
-    val feedViewPrefs: FeedViewPrefs get() {
+    val feedViewPrefs: FeedViewPrefs
+        get() {
         return _feedViewPrefs
     }
-    val threadViewPrefs: ThreadViewPrefs get() {
+    val threadViewPrefs: ThreadViewPrefs
+        get() {
         return _threadViewPrefs
     }
 

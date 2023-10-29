@@ -15,7 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import dev.itswin11.greenland.models.BskyFeedViewPost
+import dev.itswin11.greenland.models.bsky.BskyFeedViewPost
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

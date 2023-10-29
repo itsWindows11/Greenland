@@ -1,4 +1,4 @@
-package dev.itswin11.greenland.models
+package dev.itswin11.greenland.models.bsky
 
 import kotlinx.serialization.Serializable
 

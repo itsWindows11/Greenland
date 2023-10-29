@@ -3,8 +3,8 @@ package dev.itswin11.greenland.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.itswin11.greenland.App
-import dev.itswin11.greenland.models.BskyFeedViewPost
-import dev.itswin11.greenland.models.BskyGetTimelineInput
+import dev.itswin11.greenland.models.bsky.BskyFeedViewPost
+import dev.itswin11.greenland.models.bsky.BskyGetTimelineInput
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow

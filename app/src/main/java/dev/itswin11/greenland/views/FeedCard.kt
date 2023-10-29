@@ -24,8 +24,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import dev.itswin11.greenland.models.BskyFeedGeneratorView
-import dev.itswin11.greenland.models.BskyProfileViewBasic
+import dev.itswin11.greenland.models.bsky.BskyFeedGeneratorView
+import dev.itswin11.greenland.models.bsky.BskyProfileViewBasic
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -48,9 +48,9 @@ import coil.request.ImageRequest
 import dev.itswin11.greenland.R
 import dev.itswin11.greenland.activities.home.timeAgo
 import dev.itswin11.greenland.main.DateHelpers
-import dev.itswin11.greenland.models.BskyPost
-import dev.itswin11.greenland.models.BskyPostRecord
-import dev.itswin11.greenland.models.BskyProfileViewBasic
+import dev.itswin11.greenland.models.bsky.BskyPost
+import dev.itswin11.greenland.models.bsky.BskyPostRecord
+import dev.itswin11.greenland.models.bsky.BskyProfileViewBasic
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

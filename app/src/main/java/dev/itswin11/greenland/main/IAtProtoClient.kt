@@ -1,15 +1,15 @@
 package dev.itswin11.greenland.main
 
-import dev.itswin11.greenland.models.AtProtoCreateSessionResult
-import dev.itswin11.greenland.models.BskyGetFeedGeneratorResult
-import dev.itswin11.greenland.models.BskyGetFeedGeneratorsResult
-import dev.itswin11.greenland.models.BskyGetFeedInput
-import dev.itswin11.greenland.models.BskyGetFeedResult
-import dev.itswin11.greenland.models.BskyGetSuggestedFeedsInput
-import dev.itswin11.greenland.models.BskyGetSuggestedFeedsResult
-import dev.itswin11.greenland.models.BskyGetSuggestedFollowsByActorResult
-import dev.itswin11.greenland.models.BskyGetTimelineInput
-import dev.itswin11.greenland.models.BskyPreferencesModel
+import dev.itswin11.greenland.models.atproto.AtProtoCreateSessionResult
+import dev.itswin11.greenland.models.bsky.BskyGetFeedGeneratorResult
+import dev.itswin11.greenland.models.bsky.BskyGetFeedGeneratorsResult
+import dev.itswin11.greenland.models.bsky.BskyGetFeedInput
+import dev.itswin11.greenland.models.bsky.BskyGetFeedResult
+import dev.itswin11.greenland.models.bsky.BskyGetSuggestedFeedsInput
+import dev.itswin11.greenland.models.bsky.BskyGetSuggestedFeedsResult
+import dev.itswin11.greenland.models.bsky.BskyGetSuggestedFollowsByActorResult
+import dev.itswin11.greenland.models.bsky.BskyGetTimelineInput
+import dev.itswin11.greenland.models.bsky.BskyPreferencesModel
 
 interface IAtProtoClient {
     /**
