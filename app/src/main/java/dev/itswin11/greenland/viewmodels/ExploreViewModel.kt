@@ -22,7 +22,6 @@ class ExploreViewModel : ViewModel() {
     private val _suggestedFeeds = MutableStateFlow<List<BskyFeedGeneratorView>?>(null)
     val suggestedFeeds = _suggestedFeeds.asStateFlow()
 
-    // suggestedFollows: List<BskyProfileViewBasic>?
     private val _suggestedFollows = MutableStateFlow<List<BskyProfileViewBasic>?>(null) // TODO: BskyProfileView
     val suggestedFollows = _suggestedFollows.asStateFlow()
 

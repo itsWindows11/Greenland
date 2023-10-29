@@ -16,7 +16,6 @@ class HomeViewModel : ViewModel() {
     private val _postsInitiallyLoaded = MutableStateFlow(false)
     val postsInitiallyLoaded = _postsInitiallyLoaded.asStateFlow()
 
-    // refreshing
     private val _refreshing = MutableStateFlow(false)
     val refreshing = _refreshing.asStateFlow()
 
