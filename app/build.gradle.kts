@@ -1,8 +1,11 @@
+import sh.christian.ozone.api.generator.ApiReturnType
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.protobuf")
     id("kotlin-parcelize")
+    id("sh.christian.ozone.generator")
     kotlin("plugin.serialization")
 }
 
@@ -54,7 +57,9 @@ android {
 
 dependencies {
     val lifecycleVersion = "2.6.2"
-    val ktorVersion = "2.3.4"
+    val ktorVersion = "2.3.5"
+
+    lexicons(fileTree("lexicons") { include("**/*.json") })
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
@@ -64,7 +69,7 @@ dependencies {
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
 
     implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("androidx.activity:activity-compose:1.8.1")
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -78,7 +83,7 @@ dependencies {
 
     implementation("androidx.datastore:datastore:1.0.0")
 
-    implementation("androidx.navigation:navigation-compose:2.7.4")
+    implementation("androidx.navigation:navigation-compose:2.7.5")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material")
     implementation("androidx.compose.material:material-icons-extended")
@@ -123,5 +128,14 @@ protobuf {
                 }
             }
         }
+    }
+}
+
+lexicons {
+    generateApi("IAtProtoClient") {
+        packageName.set("dev.itswin11.greenland.api")
+        withKtorImplementation("AtProtoClient")
+        returnType.set(ApiReturnType.Result)
+        suspending.set(true)
     }
 }
