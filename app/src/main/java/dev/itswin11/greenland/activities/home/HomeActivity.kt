@@ -32,6 +32,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import app.bsky.notification.GetUnreadCountQueryParams
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.R
 import dev.itswin11.greenland.models.navigation.BottomNavigationItem
@@ -59,7 +60,12 @@ class HomeActivity : ComponentActivity() {
                     val navController = rememberNavController()
 
                     LaunchedEffect(Unit) {
-                        notificationCount = App.atProtoClient.getUnreadNotificationsCount()
+                        notificationCount =
+                            App.atProtoClient
+                                .getUnreadCount(GetUnreadCountQueryParams(null))
+                                .requireResponse()
+                                .count
+                                .toInt()
                     }
 
                     Column(modifier = Modifier.fillMaxSize()) {
