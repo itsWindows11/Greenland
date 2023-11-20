@@ -39,6 +39,7 @@ import com.atproto.server.CreateSessionRequest
 import com.atproto.server.CreateSessionResponse
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.activities.home.HomeActivity
+import dev.itswin11.greenland.api.AtProtoClient
 import dev.itswin11.greenland.authDataStore
 import dev.itswin11.greenland.protobuf.AuthInfo
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
@@ -162,6 +163,9 @@ class LoginActivity : ComponentActivity() {
 
             return@updateData builder.build()
         }
+
+        App.httpClient = App.createHttpClientWithAuth(response.accessJwt, response.refreshJwt)
+        App.atProtoClient = AtProtoClient(App.httpClient)
 
         startActivity(Intent(this, HomeActivity::class.java))
     }

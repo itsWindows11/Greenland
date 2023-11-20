@@ -30,6 +30,7 @@ import androidx.core.view.WindowCompat
 import dev.itswin11.greenland.activities.auth.LoginActivity
 import dev.itswin11.greenland.activities.auth.SignUpActivity
 import dev.itswin11.greenland.activities.home.HomeActivity
+import dev.itswin11.greenland.api.AtProtoClient
 import dev.itswin11.greenland.enums.AuthActivityType
 import dev.itswin11.greenland.protobuf.AuthInfoContainer
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
@@ -59,6 +60,13 @@ class MainActivity : ComponentActivity() {
 
         LaunchedEffect(authInfoContainer?.signedIn) {
             if (authInfoContainer?.signedIn == true) {
+                App.httpClient = App.createHttpClientWithAuth(
+                    authInfoContainer.authInfoList[authInfoContainer.currentAccountIndex].accessJwt,
+                    authInfoContainer.authInfoList[authInfoContainer.currentAccountIndex].refreshJwt
+                )
+
+                App.atProtoClient = AtProtoClient(App.httpClient)
+
                 startActivity(
                     Intent(this@MainActivity, HomeActivity::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)

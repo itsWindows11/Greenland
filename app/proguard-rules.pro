@@ -21,9 +21,11 @@
 #-renamesourcefileattribute SourceFile
 
 -keep class * extends com.google.protobuf.GeneratedMessageLite { *; }
+-keep class dev.itswin11.greenland.api.** { *; }
 -keep class dev.itswin11.greenland.models.** { *; }
 -keep class com.auth0.android.jwt.** { *; }
 -keep class io.ktor.utils.io.** { *; }
+-keep class sh.christian.ozone.api.** { *; }
 
 # removes such information by default, so configure it to keep all of it.
 -keepattributes Signature

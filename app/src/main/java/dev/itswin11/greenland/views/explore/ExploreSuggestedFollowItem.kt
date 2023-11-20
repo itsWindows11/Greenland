@@ -25,16 +25,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import app.bsky.actor.ProfileView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import dev.itswin11.greenland.models.atproto.AtProtoLabel
-import dev.itswin11.greenland.models.bsky.BskyProfileView
+import com.atproto.label.Label
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.datetime.Instant
+import sh.christian.ozone.api.Did
+import sh.christian.ozone.api.Handle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExploreSuggestedFollowItem(modifier: Modifier = Modifier, profileView: BskyProfileView) {
+fun ExploreSuggestedFollowItem(modifier: Modifier = Modifier, profileView: ProfileView) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -72,15 +75,15 @@ fun ExploreSuggestedFollowItem(modifier: Modifier = Modifier, profileView: BskyP
 @Preview(showBackground = true)
 @Composable
 fun ExploreSuggestedFollowItemPreview() {
-    val sampleProfile = BskyProfileView(
-        "DID",
-        "handle",
+    val sampleProfile = ProfileView(
+        Did("DID"),
+        Handle("handle"),
         "Display Name",
         "https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar-300x300.jpg",
         "Description",
-        "",
+        Instant.fromEpochSeconds(0),
         null,
-        emptyList<AtProtoLabel>().toImmutableList()
+        emptyList<Label>().toImmutableList()
     )
 
     GreenlandTheme {
