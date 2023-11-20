@@ -135,7 +135,7 @@ lexicons {
     generateApi("IAtProtoClient") {
         packageName.set("dev.itswin11.greenland.api")
         withKtorImplementation("AtProtoClient")
-        returnType.set(ApiReturnType.Result)
+        returnType.set(ApiReturnType.Response)
         suspending.set(true)
     }
 }
