@@ -2,9 +2,9 @@ package dev.itswin11.greenland.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import app.bsky.feed.FeedViewPost
+import app.bsky.feed.GetTimelineQueryParams
 import dev.itswin11.greenland.App
-import dev.itswin11.greenland.models.bsky.BskyFeedViewPost
-import dev.itswin11.greenland.models.bsky.BskyGetTimelineInput
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
-    private val _posts = MutableStateFlow<ImmutableList<BskyFeedViewPost>?>(null)
+    private val _posts = MutableStateFlow<ImmutableList<FeedViewPost>?>(null)
     val posts = _posts.asStateFlow()
 
     private val _postsInitiallyLoaded = MutableStateFlow(false)
@@ -47,16 +47,18 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private suspend fun fetchPosts(): ImmutableList<BskyFeedViewPost> {
+    private suspend fun fetchPosts(): ImmutableList<FeedViewPost> {
         val postUris: HashSet<String> = HashSet()
 
         // We filter here because there are cases where the PDS
         // will provide us the post as parent/main, and another
         // where the same post is just the main post. So we
         // filter out the items that meet the second case.
-        return App.atProtoClient.getHomeTimeline(
-            BskyGetTimelineInput(limit = 100)
-        ).feed.filter { !(!postUris.add(it.post.uri) && it.reply?.parent == null) }
-              .toImmutableList()
+        return App.atProtoClient.getTimeline(
+            GetTimelineQueryParams(limit = 100)
+        ).requireResponse()
+            .feed
+            .filter { !(!postUris.add(it.post.uri.atUri) && it.reply?.parent == null) }
+            .toImmutableList()
     }
 }
