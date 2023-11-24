@@ -2,6 +2,7 @@ package dev.itswin11.greenland.activities.auth
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -34,12 +35,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import com.atproto.server.CreateSessionRequest
+import com.atproto.server.CreateSessionResponse
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.activities.home.HomeActivity
+import dev.itswin11.greenland.api.AtProtoClient
 import dev.itswin11.greenland.authDataStore
 import dev.itswin11.greenland.protobuf.AuthInfo
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
+import io.ktor.utils.io.errors.IOException
 import kotlinx.coroutines.launch
+import sh.christian.ozone.api.response.AtpResponse
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -111,17 +117,30 @@ class LoginActivity : ComponentActivity() {
     }
 
     private suspend fun startSignInFlow(handle: String, password: String) {
-        val result = App.atProtoClient.createSession(handle, password)
+        val result: AtpResponse<CreateSessionResponse>
+
+        try {
+            result = App.atProtoClient.createSession(CreateSessionRequest(handle, password))
+        } catch (e: IOException) {
+            Toast.makeText(this, "We couldn't sign in to this account right now. Try again later.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (result is AtpResponse.Failure) {
+            result.error?.message?.let { Toast.makeText(this, it, Toast.LENGTH_SHORT).show() }
+        }
+
+        val response = result.requireResponse()
 
         authDataStore.updateData {
             val builder = it.toBuilder()
 
             val authInfoBuilder = AuthInfo.newBuilder()
 
-            authInfoBuilder.accessJwt = result.accessJwt
-            authInfoBuilder.refreshJwt = result.refreshJwt
-            authInfoBuilder.did = result.did
-            authInfoBuilder.handle = result.handle
+            authInfoBuilder.accessJwt = response.accessJwt
+            authInfoBuilder.refreshJwt = response.refreshJwt
+            authInfoBuilder.did = response.did.did
+            authInfoBuilder.handle = response.handle.handle
             authInfoBuilder.signedIn = true
 
             builder.signedIn = true
@@ -144,6 +163,9 @@ class LoginActivity : ComponentActivity() {
 
             return@updateData builder.build()
         }
+
+        App.httpClient = App.createHttpClientWithAuth(response.accessJwt, response.refreshJwt)
+        App.atProtoClient = AtProtoClient(App.httpClient)
 
         startActivity(Intent(this, HomeActivity::class.java))
     }

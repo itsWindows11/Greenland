@@ -22,15 +22,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import app.bsky.actor.ProfileView
+import app.bsky.feed.GeneratorView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import dev.itswin11.greenland.models.bsky.BskyFeedGeneratorView
-import dev.itswin11.greenland.models.bsky.BskyProfileViewBasic
+import dev.itswin11.greenland.models.FeedGeneratorListing
+import dev.itswin11.greenland.models.toFeedGeneratorListing
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
+import kotlinx.datetime.Instant
+import sh.christian.ozone.api.AtUri
+import sh.christian.ozone.api.Cid
+import sh.christian.ozone.api.Did
+import sh.christian.ozone.api.Handle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeedCard(modifier: Modifier = Modifier, feedView: BskyFeedGeneratorView) {
+fun FeedCard(modifier: Modifier = Modifier, feedView: FeedGeneratorListing) {
     // TODO: Navigation to feed view functionality
     Card(
         modifier = modifier,
@@ -75,15 +82,15 @@ fun FeedCard(modifier: Modifier = Modifier, feedView: BskyFeedGeneratorView) {
 @Preview(showBackground = true)
 @Composable
 fun FeedCardPreview() {
-    val sampleFeedGeneratorView = BskyFeedGeneratorView(
-        "",
-        "",
-        "",
-        BskyProfileViewBasic("", "@test.bsky.social"),
+    val sampleFeedGeneratorView = GeneratorView(
+        AtUri(""),
+        Cid(""),
+        Did(""),
+        ProfileView(Did(""), Handle("@test.bsky.social")),
         "Feed Name",
         "Feed Description",
-        indexedAt = ""
-    )
+        indexedAt = Instant.fromEpochSeconds(0)
+    ).toFeedGeneratorListing()
 
     GreenlandTheme {
         FeedCard(feedView = sampleFeedGeneratorView)

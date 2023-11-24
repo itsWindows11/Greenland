@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
@@ -43,23 +42,33 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import app.bsky.actor.ProfileViewBasic
+import app.bsky.feed.PostView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.itswin11.greenland.R
 import dev.itswin11.greenland.activities.home.timeAgo
-import dev.itswin11.greenland.main.DateHelpers
-import dev.itswin11.greenland.models.bsky.BskyPost
-import dev.itswin11.greenland.models.bsky.BskyPostRecord
-import dev.itswin11.greenland.models.bsky.BskyProfileViewBasic
+import dev.itswin11.greenland.models.Label
+import dev.itswin11.greenland.models.Moment
+import dev.itswin11.greenland.models.TimelinePost
+import dev.itswin11.greenland.models.TimelinePostLink
+import dev.itswin11.greenland.models.toPost
+import dev.itswin11.greenland.models.toProfile
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.datetime.Instant
+import kotlinx.serialization.json.JsonObject
+import sh.christian.ozone.api.AtUri
+import sh.christian.ozone.api.Cid
+import sh.christian.ozone.api.Did
+import sh.christian.ozone.api.Handle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostView(
-    post: BskyPost,
+    post: TimelinePost,
     isThreadChild: Boolean = false,
-    hasThreadChild: Boolean = false,
-    preview: Boolean = false
+    hasThreadChild: Boolean = false
 ) {
     val displayName = remember { post.author.displayName ?: post.author.handle }
     val paddingModifier = if (isThreadChild) Modifier.padding(12.dp, 4.dp, 12.dp, 0.dp) else Modifier.padding(
@@ -122,7 +131,6 @@ fun PostView(
                         }
                         .fillMaxHeight(),
                     post = post,
-                    preview = preview
                 )
             }
         }
@@ -131,11 +139,9 @@ fun PostView(
 
 // TODO: Implement post interactions
 @Composable
-fun PostContent(modifier: Modifier = Modifier, post: BskyPost, preview: Boolean = false) {
-    val displayName = remember { post.author.displayName ?: post.author.handle }
-
-    val dateInMillis = remember { if (preview) 0 else DateHelpers.parseAtProtoIsoDate(post.record.createdAt) }
-    val timeAgoString = remember { timeAgo(dateInMillis) }
+fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
+    val displayName = remember { post.author.displayName ?: post.author.handle.handle }
+    val timeAgoString = remember { timeAgo(post.createdAt.instant.epochSeconds) }
 
     Column(modifier) {
         Row {
@@ -188,7 +194,7 @@ fun PostContent(modifier: Modifier = Modifier, post: BskyPost, preview: Boolean 
         }
 
         Column(modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
-            Text(post.record.text)
+            Text(post.text)
         }
 
         Row(
@@ -295,34 +301,46 @@ fun PostContent(modifier: Modifier = Modifier, post: BskyPost, preview: Boolean 
 @Preview(showBackground = true)
 @Composable
 fun PostViewPreview() {
-    val sampleRecord = BskyPostRecord(
-        "Sample Post Content",
-        "app.bsky.embed.record",
-        Array(1) { "en" }.toList(),
-        "2023-10-11T13:40:03.364Z"
-    )
-
-    val sampleProfile = BskyProfileViewBasic(
-        "DID",
-        "handle",
+    val sampleProfile = ProfileViewBasic(
+        Did("DID"),
+        Handle("handle"),
         "Display Name",
-        "https://www.clevelanddentalhc.com/wp-content/uploads/2018/03/sample-avatar-300x300.jpg"
+        ""
     )
 
-    val bskyPost = BskyPost(
-        "",
-        "CID sample",
+    val bskyPost = PostView(
+        AtUri(""),
+        Cid("CID sample"),
         sampleProfile,
-        sampleRecord,
+        JsonObject(emptyMap()),
+        null,
         0,
         0,
         0,
-        "5d"
+        Instant.fromEpochSeconds(0)
+    ).toPost()
+
+    TimelinePost(
+        AtUri(""),
+        Cid("CID sample"),
+        sampleProfile.toProfile(),
+        "Sample Post Content",
+        emptyList<TimelinePostLink>().toImmutableList(),
+        Moment(Instant.fromEpochSeconds(0)),
+        null,
+        0,
+        0,
+        0,
+        Moment(Instant.fromEpochSeconds(0)),
+        reposted = false,
+        liked = false,
+        emptyList<Label>().toImmutableList(),
+        null,
+        null,
+        emptyList()
     )
 
     GreenlandTheme {
-        Box(Modifier.height(IntrinsicSize.Min)) {
-            PostView(bskyPost, preview = true)
-        }
+        PostView(bskyPost!!)
     }
 }

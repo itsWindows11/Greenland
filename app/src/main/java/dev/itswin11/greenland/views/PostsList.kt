@@ -15,14 +15,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import dev.itswin11.greenland.models.bsky.BskyFeedViewPost
+import dev.itswin11.greenland.models.TimelinePost
+import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PostsList(
     modifier: Modifier = Modifier,
     scrollState: LazyListState,
-    posts: List<BskyFeedViewPost>,
+    posts: ImmutableList<TimelinePost>,
     pullRefreshState: PullRefreshState,
     refreshing: () -> Boolean,
     titleBarConnection: NestedScrollConnection,
@@ -43,7 +44,7 @@ fun PostsList(
                         PostView(post.reply.parent, hasThreadChild = true)
                     }
 
-                    PostView(post.post, isThreadChild = post.reply?.parent != null)
+                    PostView(post, isThreadChild = post.reply?.parent != null)
                 }
 
                 Divider()
