@@ -2,9 +2,10 @@ package dev.itswin11.greenland.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.bsky.feed.FeedViewPost
 import app.bsky.feed.GetTimelineQueryParams
 import dev.itswin11.greenland.App
+import dev.itswin11.greenland.models.TimelinePost
+import dev.itswin11.greenland.models.toPost
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,7 +13,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel : ViewModel() {
-    private val _posts = MutableStateFlow<ImmutableList<FeedViewPost>?>(null)
+    private val _posts = MutableStateFlow<ImmutableList<TimelinePost>?>(null)
     val posts = _posts.asStateFlow()
 
     private val _postsInitiallyLoaded = MutableStateFlow(false)
@@ -47,7 +48,7 @@ class HomeViewModel : ViewModel() {
         }
     }
 
-    private suspend fun fetchPosts(): ImmutableList<FeedViewPost> {
+    private suspend fun fetchPosts(): ImmutableList<TimelinePost> {
         val postUris: HashSet<String> = HashSet()
 
         // We filter here because there are cases where the PDS
@@ -59,6 +60,7 @@ class HomeViewModel : ViewModel() {
         ).requireResponse()
             .feed
             .filter { !(!postUris.add(it.post.uri.atUri) && it.reply?.parent == null) }
+            .mapNotNull { it.toPost() }
             .toImmutableList()
     }
 }

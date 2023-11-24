@@ -43,32 +43,32 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import app.bsky.actor.ProfileViewBasic
-import app.bsky.feed.Post
-import app.bsky.feed.PostEntity
 import app.bsky.feed.PostView
-import app.bsky.richtext.Facet
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.itswin11.greenland.R
 import dev.itswin11.greenland.activities.home.timeAgo
+import dev.itswin11.greenland.models.Label
+import dev.itswin11.greenland.models.Moment
+import dev.itswin11.greenland.models.TimelinePost
+import dev.itswin11.greenland.models.TimelinePostLink
+import dev.itswin11.greenland.models.toPost
+import dev.itswin11.greenland.models.toProfile
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonObject
 import sh.christian.ozone.api.AtUri
 import sh.christian.ozone.api.Cid
 import sh.christian.ozone.api.Did
 import sh.christian.ozone.api.Handle
-import sh.christian.ozone.api.Language
-import sh.christian.ozone.api.model.ReadOnlyList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PostView(
-    post: PostView,
-    record: Post,
+    post: TimelinePost,
     isThreadChild: Boolean = false,
-    hasThreadChild: Boolean = false,
-    preview: Boolean = false
+    hasThreadChild: Boolean = false
 ) {
     val displayName = remember { post.author.displayName ?: post.author.handle }
     val paddingModifier = if (isThreadChild) Modifier.padding(12.dp, 4.dp, 12.dp, 0.dp) else Modifier.padding(
@@ -131,7 +131,6 @@ fun PostView(
                         }
                         .fillMaxHeight(),
                     post = post,
-                    record = record
                 )
             }
         }
@@ -140,9 +139,9 @@ fun PostView(
 
 // TODO: Implement post interactions
 @Composable
-fun PostContent(modifier: Modifier = Modifier, post: PostView, record: Post) {
+fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
     val displayName = remember { post.author.displayName ?: post.author.handle.handle }
-    val timeAgoString = remember { timeAgo(record.createdAt.epochSeconds) }
+    val timeAgoString = remember { timeAgo(post.createdAt.instant.epochSeconds) }
 
     Column(modifier) {
         Row {
@@ -195,7 +194,7 @@ fun PostContent(modifier: Modifier = Modifier, post: PostView, record: Post) {
         }
 
         Column(modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
-            Text(record.text)
+            Text(post.text)
         }
 
         Row(
@@ -302,14 +301,6 @@ fun PostContent(modifier: Modifier = Modifier, post: PostView, record: Post) {
 @Preview(showBackground = true)
 @Composable
 fun PostViewPreview() {
-    val sampleRecord = Post(
-        "Sample Post Content",
-        emptyList<PostEntity>() as ReadOnlyList<PostEntity>,
-        emptyList<Facet>() as ReadOnlyList<Facet>,
-        langs = listOf(Language("en")) as ReadOnlyList<Language>,
-        createdAt = Instant.fromEpochSeconds(0)
-    )
-
     val sampleProfile = ProfileViewBasic(
         Did("DID"),
         Handle("handle"),
@@ -327,9 +318,29 @@ fun PostViewPreview() {
         0,
         0,
         Instant.fromEpochSeconds(0)
+    ).toPost()
+
+    TimelinePost(
+        AtUri(""),
+        Cid("CID sample"),
+        sampleProfile.toProfile(),
+        "Sample Post Content",
+        emptyList<TimelinePostLink>().toImmutableList(),
+        Moment(Instant.fromEpochSeconds(0)),
+        null,
+        0,
+        0,
+        0,
+        Moment(Instant.fromEpochSeconds(0)),
+        reposted = false,
+        liked = false,
+        emptyList<Label>().toImmutableList(),
+        null,
+        null,
+        emptyList()
     )
 
     GreenlandTheme {
-        PostView(bskyPost, sampleRecord, preview = true)
+        PostView(bskyPost!!)
     }
 }
