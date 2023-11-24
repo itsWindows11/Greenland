@@ -59,6 +59,7 @@ android {
 dependencies {
     val lifecycleVersion = "2.6.2"
     val ktorVersion = "2.3.5"
+    val pagingVersion = "3.2.1"
 
     lexicons(fileTree("lexicons") { include("**/*.json") })
 
@@ -103,6 +104,9 @@ dependencies {
     implementation("com.auth0.android:jwtdecode:2.0.2")
 
     implementation("com.google.protobuf:protobuf-javalite:3.24.2")
+
+    implementation("androidx.paging:paging-runtime-ktx:$pagingVersion")
+    implementation("androidx.paging:paging-compose:$pagingVersion")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

@@ -13,17 +13,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.pullrefresh.pullRefresh
-import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -33,10 +29,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,40 +42,19 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.itswin11.greenland.viewmodels.HomeViewModel
 import dev.itswin11.greenland.views.PostsList
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
 fun HomeView(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel()) {
-    LaunchedEffect(Unit) {
-        viewModel.loadPosts()
-    }
-
-    val refreshing = viewModel.refreshing.collectAsStateWithLifecycle()
-    val posts = viewModel.posts.collectAsStateWithLifecycle()
-
     val scrollState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
-    val coroutineScope = rememberCoroutineScope()
+
+    val posts = viewModel.posts
 
     val isFabVisible = rememberSaveable { mutableStateOf(true) }
-
-    val pullRefreshState = rememberPullRefreshState(
-        refreshing = refreshing.value,
-        onRefresh = {
-            viewModel.refreshPosts {
-                coroutineScope.launch {
-                    scrollState.animateScrollToItem(0, 0)
-                }
-            }
-        },
-        refreshThreshold = 50.dp,
-        refreshingOffset = 60.dp
-    )
 
     val fabNestedScrollConnection = remember {
         object : NestedScrollConnection {
@@ -127,32 +100,13 @@ fun HomeView(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel
                 scrollBehavior = pinnedScrollBehavior
             )
 
-            if (posts.value != null) {
-                PostsList(
-                    Modifier
-                        .weight(1f)
-                        .pullRefresh(pullRefreshState)
-                        .fillMaxWidth(),
-                    scrollState,
-                    posts.value!!,
-                    pullRefreshState,
-                    { refreshing.value },
-                    pinnedScrollBehavior.nestedScrollConnection,
-                    fabNestedScrollConnection
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.requiredWidth(48.dp),
-                        color = MaterialTheme.colorScheme.secondary
-                    )
-                }
-            }
+            PostsList(
+                Modifier.weight(1f).fillMaxWidth(),
+                scrollState,
+                posts,
+                pinnedScrollBehavior.nestedScrollConnection,
+                fabNestedScrollConnection
+            )
         }
 
         AnimatedVisibility(

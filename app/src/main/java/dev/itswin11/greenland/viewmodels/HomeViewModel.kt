@@ -2,65 +2,16 @@ package dev.itswin11.greenland.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.bsky.feed.GetTimelineQueryParams
-import dev.itswin11.greenland.App
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
 import dev.itswin11.greenland.models.TimelinePost
-import dev.itswin11.greenland.models.toPost
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import dev.itswin11.greenland.pagination.PostFeedSource
+import kotlinx.coroutines.flow.Flow
 
 class HomeViewModel : ViewModel() {
-    private val _posts = MutableStateFlow<ImmutableList<TimelinePost>?>(null)
-    val posts = _posts.asStateFlow()
-
-    private val _postsInitiallyLoaded = MutableStateFlow(false)
-    val postsInitiallyLoaded = _postsInitiallyLoaded.asStateFlow()
-
-    private val _refreshing = MutableStateFlow(false)
-    val refreshing = _refreshing.asStateFlow()
-
-    private val _cursor = MutableStateFlow<String?>(null)
-    val cursor = _cursor.asStateFlow()
-
-    fun loadPosts() {
-        viewModelScope.launch {
-            if (_postsInitiallyLoaded.value)
-                return@launch
-
-            _posts.value = fetchPosts()
-
-            _postsInitiallyLoaded.value = true
-        }
-    }
-
-    fun refreshPosts(callback: () -> Unit) {
-        viewModelScope.launch {
-            _refreshing.value = true
-
-            _posts.value = fetchPosts()
-
-            _refreshing.value = false
-
-            callback()
-        }
-    }
-
-    private suspend fun fetchPosts(): ImmutableList<TimelinePost> {
-        val postUris: HashSet<String> = HashSet()
-
-        // We filter here because there are cases where the PDS
-        // will provide us the post as parent/main, and another
-        // where the same post is just the main post. So we
-        // filter out the items that meet the second case.
-        return App.atProtoClient.getTimeline(
-            GetTimelineQueryParams(limit = 100)
-        ).requireResponse()
-            .feed
-            .filter { !(!postUris.add(it.post.uri.atUri) && it.reply?.parent == null) }
-            .mapNotNull { it.toPost() }
-            .toImmutableList()
-    }
+    val posts: Flow<PagingData<TimelinePost>> = Pager(PagingConfig(pageSize = 100)) {
+        PostFeedSource()
+    }.flow.cachedIn(viewModelScope)
 }
