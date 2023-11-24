@@ -29,6 +29,8 @@ import app.bsky.actor.ProfileView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.atproto.label.Label
+import dev.itswin11.greenland.models.LiteProfile
+import dev.itswin11.greenland.models.toProfile
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
@@ -37,7 +39,7 @@ import sh.christian.ozone.api.Handle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ExploreSuggestedFollowItem(modifier: Modifier = Modifier, profileView: ProfileView) {
+fun ExploreSuggestedFollowItem(modifier: Modifier = Modifier, profileView: LiteProfile) {
     Card(
         modifier = modifier,
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
@@ -59,14 +61,17 @@ fun ExploreSuggestedFollowItem(modifier: Modifier = Modifier, profileView: Profi
             )
 
             Column(Modifier.padding(start = 12.dp, end = 12.dp).weight(1f)) {
-                Text(profileView.displayName!!, fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.height(4.dp))
+                if (profileView.displayName != null) {
+                    Text(profileView.displayName, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.height(4.dp))
+                }
+
                 Text("@${profileView.handle}", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
             }
 
             // TODO: Make this button actually functional.
             Button(onClick = { }, modifier = Modifier.align(Alignment.CenterVertically)) {
-                Text("Follow")
+                Text(if (profileView.followedByMe) "Unfollow" else "Follow")
             }
         }
     }
@@ -84,12 +89,12 @@ fun ExploreSuggestedFollowItemPreview() {
         Instant.fromEpochSeconds(0),
         null,
         emptyList<Label>().toImmutableList()
-    )
+    ).toProfile()
 
     GreenlandTheme {
         ExploreSuggestedFollowItem(
             modifier = Modifier.width(400.dp),
-            profileView = sampleProfile
+            profileView = sampleProfile as LiteProfile
         )
     }
 }

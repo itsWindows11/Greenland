@@ -26,6 +26,8 @@ import app.bsky.actor.ProfileView
 import app.bsky.feed.GeneratorView
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.itswin11.greenland.models.FeedGeneratorListing
+import dev.itswin11.greenland.models.toFeedGeneratorListing
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.datetime.Instant
 import sh.christian.ozone.api.AtUri
@@ -35,7 +37,7 @@ import sh.christian.ozone.api.Handle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FeedCard(modifier: Modifier = Modifier, feedView: GeneratorView) {
+fun FeedCard(modifier: Modifier = Modifier, feedView: FeedGeneratorListing) {
     // TODO: Navigation to feed view functionality
     Card(
         modifier = modifier,
@@ -88,7 +90,7 @@ fun FeedCardPreview() {
         "Feed Name",
         "Feed Description",
         indexedAt = Instant.fromEpochSeconds(0)
-    )
+    ).toFeedGeneratorListing()
 
     GreenlandTheme {
         FeedCard(feedView = sampleFeedGeneratorView)

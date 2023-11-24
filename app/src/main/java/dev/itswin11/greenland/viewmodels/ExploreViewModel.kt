@@ -2,14 +2,16 @@ package dev.itswin11.greenland.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import app.bsky.actor.ProfileView
-import app.bsky.feed.GeneratorView
 import app.bsky.feed.GetSuggestedFeedsQueryParams
 import app.bsky.graph.GetSuggestedFollowsByActorQueryParams
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.authDataStore
+import dev.itswin11.greenland.models.FeedGeneratorListing
+import dev.itswin11.greenland.models.LiteProfile
+import dev.itswin11.greenland.models.toFeedGeneratorListing
+import dev.itswin11.greenland.models.toProfile
+import dev.itswin11.greenland.util.mapImmutable
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,10 +28,10 @@ class ExploreViewModel : ViewModel() {
     private val _refreshing = MutableStateFlow(false)
     val refreshing = _refreshing.asStateFlow()
 
-    private val _suggestedFeeds = MutableStateFlow<ImmutableList<GeneratorView>?>(null)
+    private val _suggestedFeeds = MutableStateFlow<ImmutableList<FeedGeneratorListing>?>(null)
     val suggestedFeeds = _suggestedFeeds.asStateFlow()
 
-    private val _suggestedFollows = MutableStateFlow<ImmutableList<ProfileView>?>(null)
+    private val _suggestedFollows = MutableStateFlow<ImmutableList<LiteProfile>?>(null)
     val suggestedFollows = _suggestedFollows.asStateFlow()
 
     fun loadData(isRefresh: Boolean = false) {
@@ -48,7 +50,7 @@ class ExploreViewModel : ViewModel() {
                         .requireResponse()
                         .feeds
                         .subList(0, 5)
-                        .toImmutableList()
+                        .mapImmutable { it.toFeedGeneratorListing() }
                 },
                 async {
                     val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
@@ -60,7 +62,7 @@ class ExploreViewModel : ViewModel() {
                     )
                         .requireResponse()
                         .suggestions
-                        .toImmutableList()
+                        .mapImmutable { it.toProfile() as LiteProfile }
                 }
                 // TODO: Users on network
             )

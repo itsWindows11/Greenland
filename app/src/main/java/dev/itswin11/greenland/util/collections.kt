@@ -1,10 +1,11 @@
 package dev.itswin11.greenland.util
 
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
 fun <T> emptyImmutableList(): ImmutableList<T> {
-    return emptyList<T>().toImmutableList()
+    return persistentListOf()
 }
 
 inline fun <T, R> Iterable<T>.mapImmutable(transform: (T) -> R): ImmutableList<R> {
