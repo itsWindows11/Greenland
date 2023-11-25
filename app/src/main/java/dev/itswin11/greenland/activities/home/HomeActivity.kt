@@ -60,12 +60,16 @@ class HomeActivity : ComponentActivity() {
                     val navController = rememberNavController()
 
                     LaunchedEffect(Unit) {
-                        notificationCount =
-                            App.atProtoClient
-                                .getUnreadCount(GetUnreadCountQueryParams(null))
-                                .requireResponse()
-                                .count
-                                .toInt()
+                        try {
+                            notificationCount =
+                                App.atProtoClient
+                                    .getUnreadCount(GetUnreadCountQueryParams(null))
+                                    .requireResponse()
+                                    .count
+                                    .toInt()
+                        } catch (_: Exception) {
+                            // pass
+                        }
                     }
 
                     Column(modifier = Modifier.fillMaxSize()) {

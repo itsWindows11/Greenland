@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemKey
 import dev.itswin11.greenland.models.TimelinePost
 import kotlinx.coroutines.flow.Flow
 
@@ -59,10 +58,7 @@ fun PostsList(
                 .nestedScroll(fabConnection),
             state = scrollState
         ) {
-            items(
-                count = postsList.itemCount,
-                key = postsList.itemKey { it.uri.atUri }
-            ) { index ->
+            items(postsList.itemCount) { index ->
                 val post = remember { postsList[index] }
 
                 post?.let {
@@ -99,7 +95,7 @@ fun PostsList(
         if (postsList.loadState.refresh is LoadState.Error || postsList.loadState.append is LoadState.Error) {
             Toast.makeText(
                 LocalContext.current,
-                "An error occurred while loading posts.",
+                "An error has occurred while loading posts.",
                 Toast.LENGTH_SHORT
             ).show()
         }
