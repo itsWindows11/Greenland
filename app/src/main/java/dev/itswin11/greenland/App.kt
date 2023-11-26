@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
 import dev.itswin11.greenland.api.AtProtoClient
 import dev.itswin11.greenland.api.IAtProtoClient
+import dev.itswin11.greenland.models.FullProfile
 import dev.itswin11.greenland.protobuf.AuthInfoContainer
 import dev.itswin11.greenland.serializers.AuthInfoContainerSerializer
 import dev.itswin11.greenland.services.TokenService
@@ -32,8 +33,11 @@ class App : Application() {
         val jsonSerializer = Json {
             ignoreUnknownKeys = true
         }
+
         var httpClient = createHttpClient {}
         var atProtoClient: IAtProtoClient = AtProtoClient(httpClient)
+
+        var currentUser: FullProfile? = null
 
         private fun createHttpClient(stuffToDo: HttpClientConfig<*>.() -> Unit): HttpClient {
             return HttpClient {

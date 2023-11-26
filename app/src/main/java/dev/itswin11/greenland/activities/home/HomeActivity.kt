@@ -39,6 +39,7 @@ import dev.itswin11.greenland.models.navigation.BottomNavigationItem
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import dev.itswin11.greenland.views.explore.ExploreView
 import dev.itswin11.greenland.views.home.HomeView
+import dev.itswin11.greenland.views.profile.ProfileView
 
 class HomeActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -90,7 +91,7 @@ class HomeActivity : ComponentActivity() {
                                 Text("Notifications")
                             }
                             composable("profile") {
-                                Text("Profile")
+                                ProfileView()
                             }
                         }
 
