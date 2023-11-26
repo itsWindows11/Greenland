@@ -1,5 +1,6 @@
 package dev.itswin11.greenland.viewmodels
 
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import app.bsky.feed.GetSuggestedFeedsQueryParams
@@ -44,25 +45,33 @@ class ExploreViewModel : ViewModel() {
 
             awaitAll(
                 async {
-                    _suggestedFeeds.value = App.atProtoClient.getSuggestedFeeds(
-                        GetSuggestedFeedsQueryParams(5)
-                    )
-                        .requireResponse()
-                        .feeds
-                        .subList(0, 5)
-                        .mapImmutable { it.toFeedGeneratorListing() }
+                    try {
+                        _suggestedFeeds.value = App.atProtoClient.getSuggestedFeeds(
+                            GetSuggestedFeedsQueryParams(5)
+                        )
+                            .requireResponse()
+                            .feeds
+                            .subList(0, 5)
+                            .mapImmutable { it.toFeedGeneratorListing() }
+                    } catch (_: Exception) {
+                        // pass
+                    }
                 },
                 async {
                     val currentAccountIndex = App.instance.authDataStore.data.map { it.currentAccountIndex }.first()
                     val did = App.instance.authDataStore.data
                         .map { preferences -> preferences.authInfoList[currentAccountIndex].did }.first()
 
-                    _suggestedFollows.value = App.atProtoClient.getSuggestedFollowsByActor(
-                        GetSuggestedFollowsByActorQueryParams(AtIdentifier(did))
-                    )
-                        .requireResponse()
-                        .suggestions
-                        .mapImmutable { it.toProfile() as LiteProfile }
+                    try {
+                        _suggestedFollows.value = App.atProtoClient.getSuggestedFollowsByActor(
+                            GetSuggestedFollowsByActorQueryParams(AtIdentifier(did))
+                        )
+                            .requireResponse()
+                            .suggestions
+                            .mapImmutable { it.toProfile() as LiteProfile }
+                    } catch (e: Exception) {
+                        Toast.makeText(App.instance, "Couldn't load explore page content. Try again later.", Toast.LENGTH_SHORT).show()
+                    }
                 }
                 // TODO: Users on network
             )
