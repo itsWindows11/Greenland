@@ -26,7 +26,7 @@ class ProfileViewModel : ViewModel() {
     val profile = _profile.asStateFlow()
 
     suspend fun getProfile(actor: AtIdentifier? = null): FullProfile {
-        if (actor == null) {
+        if (actor == null || App.currentUser != null) {
             _profile.value = App.currentUser!!
             return App.currentUser!!
         }
