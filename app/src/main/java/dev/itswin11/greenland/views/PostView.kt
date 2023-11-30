@@ -1,5 +1,6 @@
 package dev.itswin11.greenland.views
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,9 +49,11 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.itswin11.greenland.R
 import dev.itswin11.greenland.activities.home.timeAgo
+import dev.itswin11.greenland.models.EmbedPost
 import dev.itswin11.greenland.models.Label
 import dev.itswin11.greenland.models.Moment
 import dev.itswin11.greenland.models.TimelinePost
+import dev.itswin11.greenland.models.TimelinePostFeature
 import dev.itswin11.greenland.models.TimelinePostLink
 import dev.itswin11.greenland.models.toPost
 import dev.itswin11.greenland.models.toProfile
@@ -143,6 +146,8 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
     val displayName = remember { post.author.displayName ?: post.author.handle.handle }
     val timeAgoString = remember { timeAgo(post.createdAt.instant.epochSeconds) }
 
+    val context = LocalContext.current
+
     Column(modifier) {
         Row {
             Column(modifier = Modifier.weight(1f)) {
@@ -193,14 +198,67 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
             }
         }
 
-        Column(modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
-            Text(post.text)
+        Column(modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            if (post.text.isNotBlank()) {
+                Text(post.text)
+            }
+
+            if (post.feature != null) {
+                when (post.feature) {
+                    is TimelinePostFeature.ExternalFeature -> PostExternalEmbed(Modifier.fillMaxWidth(), post.feature)
+                    is TimelinePostFeature.ImagesFeature -> PostImageGrid(
+                        modifier = Modifier.fillMaxWidth(),
+                        images = { post.feature.images },
+                        onImageClick = {
+                            // TODO: Image Click Event
+                            Toast.makeText(context, "TODO: Image Click", Toast.LENGTH_SHORT).show()
+                        },
+                        onAltButtonClick = {
+                            // TODO: Alt Click Event
+                            Toast.makeText(context, "TODO: Alt Click", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                    is TimelinePostFeature.MediaPostFeature -> {
+                        if (post.feature.media is TimelinePostFeature.ExternalFeature) {
+                            PostExternalEmbed(Modifier.fillMaxWidth(), post.feature.media)
+                        } else if (post.feature.media is TimelinePostFeature.ImagesFeature) {
+                            PostImageGrid(
+                                modifier = Modifier.fillMaxWidth(),
+                                images = { post.feature.media.images },
+                                onImageClick = {
+                                    // TODO: Image Click Event
+                                    Toast.makeText(context, "TODO: Image Click", Toast.LENGTH_SHORT).show()
+                                },
+                                onAltButtonClick = {
+                                    // TODO: Alt Click Event
+                                    Toast.makeText(context, "TODO: Alt Click", Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
+
+                        if (post.feature.post is EmbedPost.VisibleEmbedPost) {
+                            EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
+                        } else {
+                            // TODO: Handle other cases
+                        }
+                    }
+                    is TimelinePostFeature.PostFeature -> {
+                        if (post.feature.post is EmbedPost.VisibleEmbedPost) {
+                            EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
+                        } else {
+                            // TODO: Handle other cases
+                        }
+                    }
+                }
+            }
         }
 
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.offset((-12).dp, 0.dp).fillMaxWidth()
+            modifier = Modifier
+                .offset((-12).dp, 0.dp)
+                .fillMaxWidth()
         ) {
             OutlinedButton(
                 onClick = {},

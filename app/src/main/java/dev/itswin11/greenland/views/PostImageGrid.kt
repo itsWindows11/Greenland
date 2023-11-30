@@ -298,7 +298,8 @@ fun PostImageGrid(
                             onClick = { onImageClick(it) }
                         )
 
-                    if (imagesRemembered[it].aspectRatio?.ratio != null) {
+                    if (imagesRemembered[it].aspectRatio?.ratio != null
+                        && imagesRemembered[it].aspectRatio!!.ratio > 0) {
                         imageModifier = imageModifier.aspectRatio(imagesRemembered[it].aspectRatio!!.ratio.toFloat())
                     }
 
