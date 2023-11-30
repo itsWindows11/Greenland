@@ -55,6 +55,7 @@ data class EmbedImage(
     val thumb: String,
     val fullsize: String,
     val alt: String,
+    val aspectRatio: AspectRatio? = null
 )
 
 sealed interface EmbedPost {
@@ -130,11 +131,22 @@ fun PostViewEmbedUnion.toFeature(): TimelinePostFeature {
 private fun ImagesView.toImagesFeature(): ImagesFeature {
     return ImagesFeature(
         images = images.mapImmutable {
-            EmbedImage(
+            var image = EmbedImage(
                 thumb = it.thumb,
                 fullsize = it.fullsize,
-                alt = it.alt,
+                alt = it.alt
             )
+
+            it.aspectRatio?.let { ratio ->
+                image = image.copy(
+                    aspectRatio = AspectRatio(
+                        width = ratio.width,
+                        height = ratio.height
+                    )
+                )
+            }
+
+            image
         }
     )
 }
