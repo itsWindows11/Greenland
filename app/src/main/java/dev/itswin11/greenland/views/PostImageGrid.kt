@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -291,6 +292,7 @@ fun PostImageGrid(
                 repeat(imagesRemembered.size) {
                     var imageModifier = Modifier
                         .fillMaxWidth()
+                        .heightIn(min = 72.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
@@ -299,6 +301,8 @@ fun PostImageGrid(
                         )
 
                     if (imagesRemembered[it].aspectRatio?.ratio != null
+                        && (imagesRemembered[it].aspectRatio!!.width > 0
+                                || imagesRemembered[it].aspectRatio!!.height > 0)
                         && imagesRemembered[it].aspectRatio!!.ratio > 0) {
                         imageModifier = imageModifier.aspectRatio(imagesRemembered[it].aspectRatio!!.ratio.toFloat())
                     }
