@@ -236,10 +236,16 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
                             )
                         }
 
-                        if (post.feature.post is EmbedPost.VisibleEmbedPost) {
-                            EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
-                        } else {
-                            // TODO: Handle other cases
+                        when (post.feature.post) {
+                            is EmbedPost.VisibleEmbedPost
+                                -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
+                            is EmbedPost.GeneratorViewEmbedPost
+                                -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                            is EmbedPost.GraphListEmbedPost
+                                -> GraphListEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                            is EmbedPost.BlockedEmbedPost
+                                -> FeedWarningContainer(Modifier.fillMaxWidth(), "This post is made by a user whom you have blocked.")
+                            else -> {}
                         }
                     }
                     is TimelinePostFeature.PostFeature -> {
