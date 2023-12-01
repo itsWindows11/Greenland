@@ -55,6 +55,7 @@ import dev.itswin11.greenland.models.Moment
 import dev.itswin11.greenland.models.TimelinePost
 import dev.itswin11.greenland.models.TimelinePostFeature
 import dev.itswin11.greenland.models.TimelinePostLink
+import dev.itswin11.greenland.models.TimelinePostReason
 import dev.itswin11.greenland.models.toPost
 import dev.itswin11.greenland.models.toProfile
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
@@ -81,12 +82,35 @@ fun PostView(
         0.dp
     )
 
-    Column {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Card(
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             onClick = {},
             shape = RoundedCornerShape(0.dp)
         ) {
+            if (post.reposted && post.reason is TimelinePostReason.TimelinePostRepost) {
+                val reposterName = remember { post.reason.repostAuthor.displayName ?: post.reason.repostAuthor.handle.handle }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(28.dp, 8.dp, 4.dp, 0.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_repost),
+                        contentDescription = null,
+                        modifier = Modifier.width(18.dp).height(18.dp)
+                    )
+
+                    Text(
+                        text = "Reposted by $reposterName",
+                        maxLines = 1,
+                        fontSize = 14.sp,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
             ConstraintLayout(paddingModifier.fillMaxWidth()) {
                 val (timelineAndAvatarRef, postContentRef) = createRefs()
 
@@ -198,7 +222,7 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
             }
         }
 
-        Column(modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Column(modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (post.text.isNotBlank()) {
                 Text(post.text)
             }

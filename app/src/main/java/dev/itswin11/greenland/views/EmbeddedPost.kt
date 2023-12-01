@@ -61,13 +61,23 @@ fun EmbeddedPost(modifier: Modifier = Modifier, post: EmbedPost.VisibleEmbedPost
                     contentDescription = "Profile picture of $displayName"
                 )
 
-                Text(
-                    text = displayName,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = displayName,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+
+                    Text(
+                        text = post.author.handle.handle,
+                        fontSize = 14.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+                }
             }
 
             Text(text = post.litePost.text, fontSize = 14.sp)

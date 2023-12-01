@@ -173,7 +173,8 @@ private fun RecordViewRecordUnion.toEmbedPost(): EmbedPost {
             )
         }
         is RecordViewRecordUnion.ViewRecord -> {
-            if (value.value.recordType != "app.bsky.embed.record#viewRecord") {
+            if (value.value.recordType != "app.bsky.embed.record#viewRecord"
+                && value.value.recordType != "app.bsky.feed.post") {
                 // Not a valid record type we should support.
                 return InvisibleEmbedPost(
                     uri = value.uri,
