@@ -45,7 +45,7 @@ fun FeedCard(modifier: Modifier = Modifier, feedView: FeedGeneratorListing) {
         onClick = {},
         shape = RoundedCornerShape(8.dp)
     ) {
-        Row(modifier = modifier.padding(8.dp)) {
+        Row(modifier = Modifier.padding(8.dp)) {
             AsyncImage(
                 modifier = Modifier
                     .width(48.dp)

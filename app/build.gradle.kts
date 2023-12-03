@@ -105,6 +105,8 @@ dependencies {
 
     implementation("com.google.protobuf:protobuf-javalite:3.24.2")
 
+    implementation("me.saket.telephoto:zoomable-image-coil:0.6.2")
+
     implementation("androidx.paging:paging-runtime-ktx:$pagingVersion")
     implementation("androidx.paging:paging-compose:$pagingVersion")
 

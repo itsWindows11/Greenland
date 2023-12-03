@@ -153,9 +153,9 @@ class HomeActivity : ComponentActivity() {
     }
 }
 
-fun timeAgo(time: Long): String {
+fun timeAgo(timeSeconds: Long): String {
     val now = System.currentTimeMillis()
-    val diff = now - time
+    val diff = now - (timeSeconds * 1000)
     val second = 1000L
     val minute = 60 * second
     val hour = 60 * minute

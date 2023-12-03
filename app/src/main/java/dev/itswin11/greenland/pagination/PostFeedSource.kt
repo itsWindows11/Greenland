@@ -12,7 +12,7 @@ class PostFeedSource: PagingSource<String, TimelinePost>() {
     private val postUris: HashSet<String> = HashSet()
 
     override fun getRefreshKey(state: PagingState<String, TimelinePost>) =
-        if (state.anchorPosition == null) "" else state.closestPageToPosition(state.anchorPosition!!)?.prevKey ?: ""
+        if (state.anchorPosition == null) null else state.closestPageToPosition(state.anchorPosition!!)?.prevKey
 
     override suspend fun load(params: LoadParams<String>): LoadResult<String, TimelinePost> {
         postUris.clear()
