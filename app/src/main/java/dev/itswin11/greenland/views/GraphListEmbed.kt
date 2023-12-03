@@ -2,7 +2,6 @@ package dev.itswin11.greenland.views
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +27,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.itswin11.greenland.models.EmbedPost
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GraphListEmbed(modifier: Modifier = Modifier, post: EmbedPost.GraphListEmbedPost) {
     Card(
@@ -36,13 +37,13 @@ fun GraphListEmbed(modifier: Modifier = Modifier, post: EmbedPost.GraphListEmbed
                 1.dp,
                 color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
                 RoundedCornerShape(12.dp)
-            )
-            .clickable { },
+            ),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-        shape = RoundedCornerShape(12.dp)
+        shape = RoundedCornerShape(12.dp),
+        onClick = {}
     ) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(modifier = modifier.padding(8.dp)) {
+        Column(Modifier.padding(4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(modifier = Modifier.padding(8.dp)) {
                 AsyncImage(
                     modifier = Modifier
                         .width(48.dp)
@@ -68,7 +69,7 @@ fun GraphListEmbed(modifier: Modifier = Modifier, post: EmbedPost.GraphListEmbed
                     Spacer(Modifier.height(4.dp))
 
                     Text(
-                        text = "by @${post.author.handle}",
+                        text = "User list by @${post.author.handle}",
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                     )
                 }
