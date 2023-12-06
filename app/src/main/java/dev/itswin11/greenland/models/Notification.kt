@@ -1,5 +1,6 @@
 package dev.itswin11.greenland.models
 
+import androidx.compose.runtime.Immutable
 import app.bsky.notification.ListNotificationsNotification
 import app.bsky.notification.ListNotificationsReason
 import dev.itswin11.greenland.models.Notification.Content.Liked
@@ -13,6 +14,7 @@ import sh.christian.ozone.api.AtUri
 import sh.christian.ozone.api.Cid
 import sh.christian.ozone.api.runtime.ImmutableListSerializer
 
+@Immutable
 @Serializable
 data class Notifications(
     @Serializable(ImmutableListSerializer::class)
@@ -20,6 +22,7 @@ data class Notifications(
     val cursor: String?
 )
 
+@Immutable
 @Serializable
 data class Notification(
     val uri: AtUri,
