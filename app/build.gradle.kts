@@ -46,7 +46,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.5-dev-k1.9.21-163bb051fe5"
     }
     packaging {
         resources {
@@ -57,12 +57,12 @@ android {
 
 dependencies {
     val lifecycleVersion = "2.6.2"
-    val ktorVersion = "2.3.5"
+    val ktorVersion = "2.3.6"
     val pagingVersion = "3.2.1"
 
     lexicons(fileTree("lexicons") { include("**/*.json") })
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
 
     implementation("androidx.core:core-splashscreen:1.0.1")
@@ -98,7 +98,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.slf4j:slf4j-simple:2.0.9")
 
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     implementation("com.auth0.android:jwtdecode:2.0.2")
 
@@ -112,7 +112,7 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.09.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2023.10.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
