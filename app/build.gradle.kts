@@ -57,12 +57,12 @@ android {
 
 dependencies {
     val lifecycleVersion = "2.6.2"
-    val ktorVersion = "2.3.5"
+    val ktorVersion = "2.3.6"
     val pagingVersion = "3.2.1"
 
     lexicons(fileTree("lexicons") { include("**/*.json") })
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-collections-immutable:0.3.6")
 
     implementation("androidx.core:core-splashscreen:1.0.1")
@@ -95,10 +95,13 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("io.ktor:ktor-client-encoding:$ktorVersion")
     implementation("io.ktor:ktor-client-auth:$ktorVersion")
+
+    // To fix Proguard syntax errors, not for general use.
     implementation("com.google.code.gson:gson:2.10.1")
+
     implementation("org.slf4j:slf4j-simple:2.0.9")
 
-    implementation("io.coil-kt:coil-compose:2.4.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     implementation("com.auth0.android:jwtdecode:2.0.2")
 
