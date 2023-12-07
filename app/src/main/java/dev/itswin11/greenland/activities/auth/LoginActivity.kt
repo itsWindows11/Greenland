@@ -127,7 +127,14 @@ class LoginActivity : ComponentActivity() {
         }
 
         if (result is AtpResponse.Failure) {
-            result.error?.message?.let { Toast.makeText(this, it, Toast.LENGTH_SHORT).show() }
+            result.error?.error?.let {
+                if (it == "AuthenticationRequired") {
+                    Toast.makeText(this, "The identifier (handle or email) or password is incorrect.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "We couldn't sign in to this account right now. Try again later.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            return
         }
 
         val response = result.requireResponse()

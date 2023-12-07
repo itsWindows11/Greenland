@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -76,7 +77,7 @@ fun PostsList(
 
             if (postsList.loadState.append is LoadState.Loading) {
                 item {
-                    Box(Modifier.fillMaxWidth()) {
+                    Box(Modifier.fillMaxWidth().padding(top = 12.dp)) {
                         CircularProgressIndicator(Modifier.width(36.dp).align(Alignment.Center))
                     }
                 }

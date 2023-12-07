@@ -1,5 +1,6 @@
 package dev.itswin11.greenland.views
 
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,10 +49,13 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.itswin11.greenland.R
 import dev.itswin11.greenland.activities.home.timeAgo
+import dev.itswin11.greenland.models.EmbedPost
 import dev.itswin11.greenland.models.Label
 import dev.itswin11.greenland.models.Moment
 import dev.itswin11.greenland.models.TimelinePost
+import dev.itswin11.greenland.models.TimelinePostFeature
 import dev.itswin11.greenland.models.TimelinePostLink
+import dev.itswin11.greenland.models.TimelinePostReason
 import dev.itswin11.greenland.models.toPost
 import dev.itswin11.greenland.models.toProfile
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
@@ -78,12 +82,35 @@ fun PostView(
         0.dp
     )
 
-    Column {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Card(
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
             onClick = {},
             shape = RoundedCornerShape(0.dp)
         ) {
+            if (post.reposted && post.reason is TimelinePostReason.TimelinePostRepost) {
+                val reposterName = remember { post.reason.repostAuthor.displayName ?: post.reason.repostAuthor.handle.handle }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(28.dp, 8.dp, 4.dp, 0.dp),
+                    horizontalArrangement = Arrangement.spacedBy(24.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_repost),
+                        contentDescription = null,
+                        modifier = Modifier.width(18.dp).height(18.dp)
+                    )
+
+                    Text(
+                        text = "Reposted by $reposterName",
+                        maxLines = 1,
+                        fontSize = 14.sp,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+
             ConstraintLayout(paddingModifier.fillMaxWidth()) {
                 val (timelineAndAvatarRef, postContentRef) = createRefs()
 
@@ -143,6 +170,8 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
     val displayName = remember { post.author.displayName ?: post.author.handle.handle }
     val timeAgoString = remember { timeAgo(post.createdAt.instant.epochSeconds) }
 
+    val context = LocalContext.current
+
     Column(modifier) {
         Row {
             Column(modifier = Modifier.weight(1f)) {
@@ -193,14 +222,79 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
             }
         }
 
-        Column(modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp)) {
-            Text(post.text)
+        Column(modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (post.text.isNotBlank()) {
+                Text(post.text)
+            }
+
+            if (post.feature != null) {
+                when (post.feature) {
+                    is TimelinePostFeature.ExternalFeature -> PostExternalEmbed(Modifier.fillMaxWidth(), post.feature)
+                    is TimelinePostFeature.ImagesFeature -> PostImageGrid(
+                        modifier = Modifier.fillMaxWidth(),
+                        images = { post.feature.images },
+                        onImageClick = {
+                            // TODO: Image Click Event
+                            Toast.makeText(context, "TODO: Image Click", Toast.LENGTH_SHORT).show()
+                        },
+                        onAltButtonClick = {
+                            // TODO: Alt Click Event
+                            Toast.makeText(context, "TODO: Alt Click", Toast.LENGTH_SHORT).show()
+                        }
+                    )
+                    is TimelinePostFeature.MediaPostFeature -> {
+                        if (post.feature.media is TimelinePostFeature.ExternalFeature) {
+                            PostExternalEmbed(Modifier.fillMaxWidth(), post.feature.media)
+                        } else if (post.feature.media is TimelinePostFeature.ImagesFeature) {
+                            PostImageGrid(
+                                modifier = Modifier.fillMaxWidth(),
+                                images = { post.feature.media.images },
+                                onImageClick = {
+                                    // TODO: Image Click Event
+                                    Toast.makeText(context, "TODO: Image Click", Toast.LENGTH_SHORT).show()
+                                },
+                                onAltButtonClick = {
+                                    // TODO: Alt Click Event
+                                    Toast.makeText(context, "TODO: Alt Click", Toast.LENGTH_SHORT).show()
+                                }
+                            )
+                        }
+
+                        when (post.feature.post) {
+                            is EmbedPost.VisibleEmbedPost
+                                -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
+                            is EmbedPost.GeneratorViewEmbedPost
+                                -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                            is EmbedPost.GraphListEmbedPost
+                                -> GraphListEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                            is EmbedPost.BlockedEmbedPost
+                                -> FeedWarningContainer(Modifier.fillMaxWidth(), "This post is made by a user whom you have blocked.")
+                            else -> {}
+                        }
+                    }
+                    is TimelinePostFeature.PostFeature -> {
+                        when (post.feature.post) {
+                            is EmbedPost.VisibleEmbedPost
+                                -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
+                            is EmbedPost.GeneratorViewEmbedPost
+                                -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                            is EmbedPost.GraphListEmbedPost
+                                -> GraphListEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                            is EmbedPost.BlockedEmbedPost
+                                -> FeedWarningContainer(Modifier.fillMaxWidth(), "This post is made by a user whom you have blocked.")
+                            else -> {}
+                        }
+                    }
+                }
+            }
         }
 
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.offset((-12).dp, 0.dp).fillMaxWidth()
+            modifier = Modifier
+                .offset((-12).dp, 0.dp)
+                .fillMaxWidth()
         ) {
             OutlinedButton(
                 onClick = {},
