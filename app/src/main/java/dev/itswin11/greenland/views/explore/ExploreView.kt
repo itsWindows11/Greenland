@@ -160,7 +160,7 @@ fun ExploreView(modifier: Modifier = Modifier, viewModel: ExploreViewModel = vie
         }
     } else {
         Box(
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .padding(0.dp, 12.dp, 0.dp, 0.dp),
             contentAlignment = Alignment.Center
