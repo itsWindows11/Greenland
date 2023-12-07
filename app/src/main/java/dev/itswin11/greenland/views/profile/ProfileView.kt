@@ -83,13 +83,13 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
 
 @Composable
 private fun ProfileViewHeader(profile: FullProfile) {
-    Column {
-        val displayName = remember { profile.displayName ?: profile.handle.handle }
+    val displayName = remember { profile.displayName ?: profile.handle.handle }
 
+    Box {
         AsyncImage(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surfaceVariant)
-                .height(220.dp),
+                .height(180.dp),
             model = ImageRequest.Builder(LocalContext.current)
                 .data(profile.banner)
                 .crossfade(500)
@@ -98,10 +98,7 @@ private fun ProfileViewHeader(profile: FullProfile) {
             contentDescription = "Banner of $displayName"
         )
 
-        Row(
-            Modifier
-                .offset(0.dp, (-36).dp)
-                .padding(12.dp)) {
+        Row(Modifier.padding(12.dp, 148.dp, 12.dp, 0.dp)) {
             Column {
                 AsyncImage(
                     modifier = Modifier
@@ -130,7 +127,7 @@ private fun ProfileViewHeader(profile: FullProfile) {
 
             Spacer(Modifier.weight(1f))
 
-            Row(Modifier.offset(0.dp, 36.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(Modifier.offset(0.dp, 44.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 OutlinedButton(onClick = { /*TODO*/ }) {
                     Text("Edit Profile")
                 }
