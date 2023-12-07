@@ -5,10 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +42,7 @@ fun NotificationItem(modifier: Modifier, notification: Notification, onClick: ()
     val notificationIconResource = when (notification.reason) {
         Notification.Reason.REPOST -> R.drawable.ic_repost
         Notification.Reason.FOLLOW -> R.drawable.ic_follow
-        Notification.Reason.LIKE -> R.drawable.ic_like
+        Notification.Reason.LIKE -> R.drawable.ic_like_filled
         else -> 0
     }
 
@@ -52,7 +50,7 @@ fun NotificationItem(modifier: Modifier, notification: Notification, onClick: ()
         if (notification.reason != Notification.Reason.MENTION
             && notification.reason != Notification.Reason.REPLY
             && notification.reason != Notification.Reason.QUOTE) {
-            ConstraintLayout(Modifier.fillMaxWidth().padding(12.dp)) {
+            ConstraintLayout(Modifier.fillMaxWidth().padding(24.dp, 12.dp, 12.dp, 12.dp)) {
                 val (icon, content) = createRefs()
 
                 Icon(
@@ -63,9 +61,10 @@ fun NotificationItem(modifier: Modifier, notification: Notification, onClick: ()
                             end.linkTo(content.start, margin = 12.dp)
                             width = Dimension.preferredWrapContent
                         }
-                        .size(32.dp),
+                        .size(24.dp),
                     painter = painterResource(notificationIconResource),
-                    contentDescription = null
+                    contentDescription = null,
+                    tint = if (notification.reason != Notification.Reason.LIKE) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.error
                 )
 
                 NotificationContent(
@@ -95,8 +94,7 @@ fun NotificationContent(modifier: Modifier, notification: Notification) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
         AsyncImage(
             modifier = Modifier
-                .width(40.dp)
-                .height(40.dp)
+                .size(32.dp)
                 .clip(CircleShape)
                 .background(MaterialTheme.colorScheme.surfaceVariant),
             model = ImageRequest.Builder(LocalContext.current)
