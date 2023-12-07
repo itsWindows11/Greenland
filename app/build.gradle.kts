@@ -95,7 +95,10 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
     implementation("io.ktor:ktor-client-encoding:$ktorVersion")
     implementation("io.ktor:ktor-client-auth:$ktorVersion")
+
+    // To fix Proguard syntax errors, not for general use.
     implementation("com.google.code.gson:gson:2.10.1")
+
     implementation("org.slf4j:slf4j-simple:2.0.9")
 
     implementation("io.coil-kt:coil-compose:2.5.0")
