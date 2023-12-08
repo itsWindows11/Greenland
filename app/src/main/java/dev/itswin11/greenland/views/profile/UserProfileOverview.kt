@@ -9,17 +9,20 @@ import androidx.compose.material.Text
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import dev.itswin11.greenland.enums.UserProfileOverviewTabType
 import dev.itswin11.greenland.models.TimelinePost
+import dev.itswin11.greenland.models.TimelinePostFeature
 import dev.itswin11.greenland.viewmodels.ProfileViewModel
 import dev.itswin11.greenland.views.FeedPostSlice
 
@@ -53,12 +56,25 @@ private fun UserProfileOverviewPosts(
         else -> throw Exception("Unexpected UserProfileOverviewTabType value.")
     }.collectAsLazyPagingItems()
 
-    val firstTimeLoaded = remember { mutableStateOf(false) }
+    val firstTimeLoaded = rememberSaveable { mutableStateOf(false) }
+    val isRefreshing = viewModel.isRefreshing.collectAsStateWithLifecycle()
+
+    LaunchedEffect(posts.loadState) {
+        viewModel.isRefreshing.value = posts.loadState.refresh is LoadState.Loading && firstTimeLoaded.value
+
+        if (posts.loadState.refresh !is LoadState.Loading) {
+            firstTimeLoaded.value = true
+        }
+    }
+
+    LaunchedEffect(isRefreshing.value) {
+        if (isRefreshing.value) {
+            posts.refresh()
+        }
+    }
 
     // TODO: media grid instead of list
     if (posts.loadState.refresh is LoadState.Loading && !firstTimeLoaded.value) {
-        firstTimeLoaded.value = true
-
         Box(modifier.padding(top = 24.dp)) {
             CircularProgressIndicator(
                 Modifier
@@ -72,7 +88,10 @@ private fun UserProfileOverviewPosts(
 
                 if (post != null) {
                     if (pageType == UserProfileOverviewTabType.POSTS && post.reply != null
-                        || pageType == UserProfileOverviewTabType.MEDIA && post.feature == null)
+                        || (pageType == UserProfileOverviewTabType.MEDIA
+                            && !(post.feature is TimelinePostFeature.ImagesFeature
+                                || post.feature is TimelinePostFeature.MediaPostFeature))
+                        )
                         return@items
 
                     FeedPostSlice(post, pageType == UserProfileOverviewTabType.REPLIES)

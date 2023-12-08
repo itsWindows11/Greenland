@@ -117,7 +117,7 @@ fun HomeView(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel
                 .padding(0.dp, 0.dp, 20.dp, 20.dp)
         ) {
             FloatingActionButton(
-                onClick = { }
+                onClick = { /*TODO*/ }
             ) {
                 Icon(Icons.Rounded.Add, contentDescription = "Add")
             }

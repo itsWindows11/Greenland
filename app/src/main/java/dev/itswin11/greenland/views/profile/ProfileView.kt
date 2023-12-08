@@ -22,6 +22,10 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.pullrefresh.PullRefreshIndicator
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -58,11 +62,13 @@ import dev.itswin11.greenland.views.AppTab
 import kotlinx.coroutines.launch
 import sh.christian.ozone.api.AtIdentifier
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
 fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewModel()) {
     val profile = viewModel.profile.collectAsStateWithLifecycle()
     val selectedTab = viewModel.selectedTab.collectAsStateWithLifecycle()
+
+    val isRefreshing = viewModel.isRefreshing.collectAsStateWithLifecycle()
 
     val shouldChangeTabByPager = remember { mutableStateOf(true) }
 
@@ -73,8 +79,19 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
 
     val scrollState = rememberScrollState()
 
+    val pullRefreshState = rememberPullRefreshState(
+        refreshing = isRefreshing.value,
+        onRefresh = {
+            // We do not currently track the progress of re-fetching the profile.
+            viewModel.isRefreshing.value = true
+            viewModel.getProfile(actor)
+        },
+        refreshThreshold = 50.dp,
+        refreshingOffset = 60.dp
+    )
+
     LaunchedEffect(profile) {
-        viewModel.getProfile(actor)
+        viewModel.getProfile(actor, true)
     }
 
     LaunchedEffect(pagerState) {
@@ -84,8 +101,16 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
         }
     }
 
+    LaunchedEffect(isRefreshing) {
+        if (isRefreshing.value)
+            viewModel.getProfile(actor)
+    }
+
     if (profile.value != null) {
-        BoxWithConstraints {
+        BoxWithConstraints(
+            Modifier
+                .fillMaxSize()
+                .pullRefresh(pullRefreshState)) {
             val height = maxHeight
 
             Column(
@@ -109,9 +134,11 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                                 AppTab(
                                     title = title,
                                     onClick = {
+                                        shouldChangeTabByPager.value = false
                                         viewModel.setSelectedTab(index)
                                         coroutineScope.launch {
                                             pagerState.animateScrollToPage(index)
+                                            shouldChangeTabByPager.value = true
                                         }
                                     }
                                 )
@@ -147,6 +174,15 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                     }
                 }
             }
+
+            PullRefreshIndicator(
+                isRefreshing.value,
+                pullRefreshState,
+                Modifier.align(Alignment.TopCenter),
+                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                scale = true
+            )
         }
     } else {
         Box(

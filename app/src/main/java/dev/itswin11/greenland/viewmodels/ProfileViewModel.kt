@@ -17,6 +17,7 @@ import dev.itswin11.greenland.pagination.UserPostLikesFeedSource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import sh.christian.ozone.api.AtIdentifier
 
 class ProfileViewModel : ViewModel() {
@@ -45,20 +46,27 @@ class ProfileViewModel : ViewModel() {
     private val _selectedTab = MutableStateFlow(0)
     val selectedTab = _selectedTab.asStateFlow()
 
-    suspend fun getProfile(actor: AtIdentifier? = null): FullProfile {
-        if (actor == null || App.currentUser != null) {
+    // Temporary workaround until there's a better way
+    // to update states that are outside composables.
+    val isRefreshing = MutableStateFlow(false)
+
+    fun getProfile(actor: AtIdentifier? = null, useCache: Boolean = false) {
+        if (useCache && (actor == null || App.currentUser != null)) {
             _profile.value = App.currentUser!!
-            return App.currentUser!!
+            return
         }
 
-        val profile = App.atProtoClient
-            .getProfile(GetProfileQueryParams(actor))
-            .requireResponse()
-            .toProfile()
+        viewModelScope.launch {
+            val profile = App.atProtoClient
+                .getProfile(GetProfileQueryParams(actor ?: AtIdentifier(App.currentUser!!.did.did)))
+                .requireResponse()
+                .toProfile()
 
-        _profile.value = profile
+            _profile.value = profile
 
-        return profile
+            if (App.currentUser != null && profile.did == App.currentUser!!.did)
+                App.currentUser = profile
+        }
     }
 
     fun setSelectedTab(index: Int) {
