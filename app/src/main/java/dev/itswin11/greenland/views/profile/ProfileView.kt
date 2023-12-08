@@ -298,7 +298,12 @@ private fun ProfileViewHeader(profile: FullProfile) {
                 ) {
                     Text(
                         buildAnnotatedString {
-                            pushStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold))
+                            pushStyle(
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
 
                             append(profile.followsCount.toString())
 
@@ -311,7 +316,12 @@ private fun ProfileViewHeader(profile: FullProfile) {
 
                     Text(
                         buildAnnotatedString {
-                            pushStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold))
+                            pushStyle(
+                                SpanStyle(
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            )
 
                             append(profile.followersCount.toString())
 
@@ -324,7 +334,12 @@ private fun ProfileViewHeader(profile: FullProfile) {
                 }
             }
 
-            Row(Modifier.align(Alignment.TopEnd).padding(top = 44.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 44.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 OutlinedButton(onClick = { /*TODO*/ }) {
                     if (App.currentUser?.did?.did == profile.did.did) {
                         Text("Edit Profile")
