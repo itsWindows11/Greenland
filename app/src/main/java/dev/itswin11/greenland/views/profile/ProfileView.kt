@@ -305,12 +305,12 @@ private fun ProfileViewHeader(profile: FullProfile) {
                                 )
                             )
 
-                            append(profile.followsCount.toString())
+                            append(profile.followersCount.toString())
 
                             pop()
                             pushStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant))
 
-                            append(" following")
+                            append(" followers")
                         }
                     )
 
@@ -323,12 +323,12 @@ private fun ProfileViewHeader(profile: FullProfile) {
                                 )
                             )
 
-                            append(profile.followersCount.toString())
+                            append(profile.followsCount.toString())
 
                             pop()
                             pushStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant))
 
-                            append(" followers")
+                            append(" following")
                         }
                     )
                 }
