@@ -58,7 +58,7 @@ fun NotificationsView(viewModel: NotificationsViewModel = viewModel()) {
             scrollBehavior = pinnedScrollBehavior
         )
 
-        Box(Modifier.weight(1f).pullRefresh(pullRefreshState)) {
+        Box(Modifier.weight(1f).fillMaxWidth().pullRefresh(pullRefreshState)) {
             LazyColumn(Modifier.nestedScroll(pinnedScrollBehavior.nestedScrollConnection)) {
                 items(notifications.itemCount) {
                     val notification = notifications[it]

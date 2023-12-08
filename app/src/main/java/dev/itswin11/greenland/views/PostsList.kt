@@ -2,7 +2,6 @@ package dev.itswin11.greenland.views
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -63,22 +62,21 @@ fun PostsList(
                 val post = remember { postsList[index] }
 
                 post?.let {
-                    Column {
-                        if (post.reply?.parent != null) {
-                            PostView(post.reply.parent, hasThreadChild = true)
-                        }
-
-                        PostView(post, isThreadChild = post.reply?.parent != null)
-                    }
-
+                    FeedPostSlice(it)
                     Divider()
                 }
             }
 
             if (postsList.loadState.append is LoadState.Loading) {
                 item {
-                    Box(Modifier.fillMaxWidth().padding(top = 12.dp)) {
-                        CircularProgressIndicator(Modifier.width(36.dp).align(Alignment.Center))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)) {
+                        CircularProgressIndicator(
+                            Modifier
+                                .width(36.dp)
+                                .align(Alignment.Center))
                     }
                 }
             }
