@@ -6,8 +6,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -49,12 +51,16 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import dev.itswin11.greenland.App
 import dev.itswin11.greenland.enums.UserProfileOverviewTabType
 import dev.itswin11.greenland.models.FullProfile
 import dev.itswin11.greenland.viewmodels.ProfileViewModel
@@ -110,7 +116,8 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
         BoxWithConstraints(
             Modifier
                 .fillMaxSize()
-                .pullRefresh(pullRefreshState)) {
+                .pullRefresh(pullRefreshState)
+        ) {
             val height = maxHeight
 
             Column(
@@ -166,10 +173,29 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                         beyondBoundsPageCount = 0
                     ) {
                         when (it) {
-                            0 -> UserProfileOverview(UserProfileOverviewTabType.POSTS, Modifier.fillMaxSize(), viewModel)
-                            1 -> UserProfileOverview(UserProfileOverviewTabType.REPLIES, Modifier.fillMaxSize(), viewModel)
-                            2 -> UserProfileOverview(UserProfileOverviewTabType.MEDIA, Modifier.fillMaxSize(), viewModel)
-                            3 -> UserProfileOverview(UserProfileOverviewTabType.LIKES, Modifier.fillMaxSize(), viewModel)
+                            0 -> UserProfileOverview(
+                                UserProfileOverviewTabType.POSTS,
+                                Modifier.fillMaxSize(),
+                                viewModel
+                            )
+
+                            1 -> UserProfileOverview(
+                                UserProfileOverviewTabType.REPLIES,
+                                Modifier.fillMaxSize(),
+                                viewModel
+                            )
+
+                            2 -> UserProfileOverview(
+                                UserProfileOverviewTabType.MEDIA,
+                                Modifier.fillMaxSize(),
+                                viewModel
+                            )
+
+                            3 -> UserProfileOverview(
+                                UserProfileOverviewTabType.LIKES,
+                                Modifier.fillMaxSize(),
+                                viewModel
+                            )
                         }
                     }
                 }
@@ -199,6 +225,7 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun ProfileViewHeader(profile: FullProfile) {
     val displayName = remember { profile.displayName ?: profile.handle.handle }
@@ -216,7 +243,7 @@ private fun ProfileViewHeader(profile: FullProfile) {
             contentDescription = "Banner of $displayName"
         )
 
-        Row(Modifier.padding(12.dp, 148.dp, 12.dp, 12.dp)) {
+        Box(Modifier.padding(12.dp, 148.dp, 12.dp, 0.dp)) {
             Column {
                 AsyncImage(
                     modifier = Modifier
@@ -231,23 +258,82 @@ private fun ProfileViewHeader(profile: FullProfile) {
                     contentDescription = "Profile picture of $displayName"
                 )
 
-                Text(
-                    displayName,
-                    modifier = Modifier.padding(top = 8.dp),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        displayName,
+                        modifier = Modifier.padding(top = 8.dp),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    if (profile.followingMe) {
+                        Surface(
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier.offset(y = 5.dp),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(
+                                "Follows you",
+                                Modifier.padding(8.dp, 2.dp),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                fontSize = 14.sp
+                            )
+                        }
+                    }
+                }
 
                 if (profile.displayName != null) {
                     Text("@${profile.handle.handle}")
                 }
+
+                if (profile.description != null) {
+                    Text(profile.description, Modifier.padding(vertical = 8.dp))
+                }
+
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        buildAnnotatedString {
+                            pushStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold))
+
+                            append(profile.followsCount.toString())
+
+                            pop()
+                            pushStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant))
+
+                            append(" following")
+                        }
+                    )
+
+                    Text(
+                        buildAnnotatedString {
+                            pushStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurface, fontWeight = FontWeight.SemiBold))
+
+                            append(profile.followersCount.toString())
+
+                            pop()
+                            pushStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant))
+
+                            append(" followers")
+                        }
+                    )
+                }
             }
 
-            Spacer(Modifier.weight(1f))
-
-            Row(Modifier.offset(0.dp, 44.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(Modifier.align(Alignment.TopEnd).padding(top = 44.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 OutlinedButton(onClick = { /*TODO*/ }) {
-                    Text("Edit Profile")
+                    if (App.currentUser?.did?.did == profile.did.did) {
+                        Text("Edit Profile")
+                    } else if (profile.followedByMe) {
+                        Text("Following")
+                    } else {
+                        // TODO: Filled button for this
+                        Text("Follow")
+                    }
                 }
             }
         }
