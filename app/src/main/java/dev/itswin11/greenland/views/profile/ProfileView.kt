@@ -50,6 +50,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -63,6 +64,7 @@ import coil.request.ImageRequest
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.enums.UserProfileOverviewTabType
 import dev.itswin11.greenland.models.FullProfile
+import dev.itswin11.greenland.util.conditional
 import dev.itswin11.greenland.viewmodels.ProfileViewModel
 import dev.itswin11.greenland.views.AppTab
 import kotlinx.coroutines.launch
@@ -92,8 +94,8 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
             viewModel.isRefreshing.value = true
             viewModel.getProfile(actor)
         },
-        refreshThreshold = 50.dp,
-        refreshingOffset = 60.dp
+        refreshingOffset = 100.dp,
+        refreshThreshold = 108.dp
     )
 
     LaunchedEffect(profile) {
@@ -119,21 +121,28 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                 .pullRefresh(pullRefreshState)
         ) {
             val height = maxHeight
+            val headerHeight = remember {
+                mutableStateOf(0.dp)
+            }
 
             Column(
                 Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
             ) {
-                ProfileViewHeader(profile.value!!)
+                ProfileViewHeader(Modifier.onGloballyPositioned {
+                    headerHeight.value = it.size.height.dp - 2.dp
+                }, profile.value!!)
 
                 Column(Modifier.height(height)) {
-                    Surface(Modifier.statusBarsPadding()) {
+                    Surface(Modifier.conditional(scrollState.value.dp >= headerHeight.value, Modifier.statusBarsPadding())) {
                         TabRow(
                             selectedTabIndex = selectedTab.value,
                             indicator = { tabPositions ->
                                 TabRowDefaults.Indicator(
                                     modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                                    height = 2.dp,
+                                    color = MaterialTheme.colorScheme.onSurface
                                 )
                             },
                         ) {
@@ -227,10 +236,10 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ProfileViewHeader(profile: FullProfile) {
+private fun ProfileViewHeader(modifier: Modifier = Modifier, profile: FullProfile) {
     val displayName = remember { profile.displayName ?: profile.handle.handle }
 
-    Box {
+    Box(modifier) {
         AsyncImage(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.surfaceVariant)
@@ -289,11 +298,8 @@ private fun ProfileViewHeader(profile: FullProfile) {
                     Text("@${profile.handle.handle}")
                 }
 
-                if (profile.description != null) {
-                    Text(profile.description, Modifier.padding(vertical = 8.dp))
-                }
-
                 FlowRow(
+                    modifier = Modifier.padding(top = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
@@ -331,6 +337,10 @@ private fun ProfileViewHeader(profile: FullProfile) {
                             append(" following")
                         }
                     )
+                }
+
+                if (profile.description != null) {
+                    Text(profile.description, Modifier.padding(vertical = 8.dp))
                 }
             }
 
