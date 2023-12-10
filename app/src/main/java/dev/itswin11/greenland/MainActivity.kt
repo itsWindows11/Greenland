@@ -2,6 +2,7 @@ package dev.itswin11.greenland
 
 import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -27,14 +28,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
+import app.bsky.actor.GetProfileQueryParams
 import dev.itswin11.greenland.activities.auth.LoginActivity
 import dev.itswin11.greenland.activities.auth.SignUpActivity
 import dev.itswin11.greenland.activities.home.HomeActivity
 import dev.itswin11.greenland.api.AtProtoClient
 import dev.itswin11.greenland.enums.AuthActivityType
+import dev.itswin11.greenland.models.toProfile
 import dev.itswin11.greenland.protobuf.AuthInfoContainer
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.coroutines.flow.Flow
+import sh.christian.ozone.api.AtIdentifier
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -66,6 +70,14 @@ class MainActivity : ComponentActivity() {
                 )
 
                 App.atProtoClient = AtProtoClient(App.httpClient)
+
+                try {
+                    App.currentUser = App.atProtoClient.getProfile(GetProfileQueryParams(
+                        AtIdentifier(authInfoContainer.authInfoList[authInfoContainer.currentAccountIndex].did)
+                    )).requireResponse().toProfile()
+                } catch (_: Exception) {
+                    Toast.makeText(this@MainActivity, "Failed to get profile.", Toast.LENGTH_SHORT).show()
+                }
 
                 startActivity(
                     Intent(this@MainActivity, HomeActivity::class.java)

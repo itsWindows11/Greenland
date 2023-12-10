@@ -40,6 +40,7 @@ import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import dev.itswin11.greenland.views.explore.ExploreView
 import dev.itswin11.greenland.views.home.HomeView
 import dev.itswin11.greenland.views.notifications.NotificationsView
+import dev.itswin11.greenland.views.profile.ProfileView
 
 class HomeActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -91,7 +92,7 @@ class HomeActivity : ComponentActivity() {
                                 NotificationsView()
                             }
                             composable("profile") {
-                                Text("Profile")
+                                ProfileView()
                             }
                         }
 
@@ -154,9 +155,9 @@ class HomeActivity : ComponentActivity() {
     }
 }
 
-fun timeAgo(timeSeconds: Long): String {
+fun timeAgo(time: Long): String {
     val now = System.currentTimeMillis()
-    val diff = now - (timeSeconds * 1000)
+    val diff = now - (time * 1000)
     val second = 1000L
     val minute = 60 * second
     val hour = 60 * minute

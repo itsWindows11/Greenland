@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -46,7 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.itswin11.greenland.viewmodels.HomeViewModel
 import dev.itswin11.greenland.views.PostsList
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeView(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel()) {
     val scrollState = rememberLazyListState()
@@ -118,7 +117,7 @@ fun HomeView(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel
                 .padding(0.dp, 0.dp, 20.dp, 20.dp)
         ) {
             FloatingActionButton(
-                onClick = { }
+                onClick = { /*TODO*/ }
             ) {
                 Icon(Icons.Rounded.Add, contentDescription = "Add")
             }
