@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -75,12 +76,13 @@ fun PostView(
     hasThreadChild: Boolean = false
 ) {
     val displayName = remember { post.author.displayName ?: post.author.handle }
-    val paddingModifier = if (isThreadChild) Modifier.padding(12.dp, 4.dp, 12.dp, 0.dp) else Modifier.padding(
-        12.dp,
-        12.dp,
-        12.dp,
-        0.dp
-    )
+    val paddingModifier =
+        if (isThreadChild) Modifier.padding(12.dp, 4.dp, 12.dp, 0.dp) else Modifier.padding(
+            12.dp,
+            12.dp,
+            12.dp,
+            0.dp
+        )
 
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Card(
@@ -89,17 +91,23 @@ fun PostView(
             shape = RoundedCornerShape(0.dp)
         ) {
             if (post.reposted && post.reason is TimelinePostReason.TimelinePostRepost) {
-                val reposterName = remember { post.reason.repostAuthor.displayName ?: post.reason.repostAuthor.handle.handle }
+                val reposterName = remember {
+                    post.reason.repostAuthor.displayName ?: post.reason.repostAuthor.handle.handle
+                }
 
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(28.dp, 8.dp, 4.dp, 0.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(28.dp, 8.dp, 4.dp, 0.dp),
                     horizontalArrangement = Arrangement.spacedBy(24.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         painterResource(R.drawable.ic_repost),
                         contentDescription = null,
-                        modifier = Modifier.width(18.dp).height(18.dp)
+                        modifier = Modifier
+                            .width(18.dp)
+                            .height(18.dp)
                     )
 
                     Text(
@@ -129,7 +137,8 @@ fun PostView(
                             Modifier
                                 .width(2.dp)
                                 .fillMaxHeight()
-                                .padding(top = 52.dp))
+                                .padding(top = 52.dp)
+                        )
                     }
 
                     AsyncImage(
@@ -222,40 +231,74 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
             }
         }
 
-        Column(modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            modifier = Modifier.padding(0.dp, 8.dp, 0.dp, 0.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             if (post.text.isNotBlank()) {
                 Text(post.text)
             }
 
             if (post.feature != null) {
                 when (post.feature) {
-                    is TimelinePostFeature.ExternalFeature -> PostExternalEmbed(Modifier.fillMaxWidth(), post.feature)
-                    is TimelinePostFeature.ImagesFeature -> PostImageGrid(
-                        modifier = Modifier.fillMaxWidth(),
-                        images = { post.feature.images },
-                        onImageClick = {
-                            // TODO: Image Click Event
-                            Toast.makeText(context, "TODO: Image Click", Toast.LENGTH_SHORT).show()
-                        },
-                        onAltButtonClick = {
-                            // TODO: Alt Click Event
-                            Toast.makeText(context, "TODO: Alt Click", Toast.LENGTH_SHORT).show()
-                        }
+                    is TimelinePostFeature.ExternalFeature -> PostExternalEmbed(
+                        Modifier.fillMaxWidth(),
+                        post.feature
                     )
+
+                    is TimelinePostFeature.ImagesFeature -> {
+                        if (post.feature.images.size > 1) {
+                            Modifier
+                                .fillMaxWidth()
+                                .height(250.dp)
+                        } else {
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(max = 650.dp)
+                        }
+
+                        PostImageGrid(
+                            modifier = Modifier.fillMaxWidth(),
+                            images = { post.feature.images },
+                            onImageClick = {
+                                // TODO: Image Click Event
+                                Toast.makeText(context, "TODO: Image Click", Toast.LENGTH_SHORT)
+                                    .show()
+                            },
+                            onAltButtonClick = {
+                                // TODO: Alt Click Event
+                                Toast.makeText(context, "TODO: Alt Click", Toast.LENGTH_SHORT)
+                                    .show()
+                            }
+                        )
+                    }
+
                     is TimelinePostFeature.MediaPostFeature -> {
                         if (post.feature.media is TimelinePostFeature.ExternalFeature) {
                             PostExternalEmbed(Modifier.fillMaxWidth(), post.feature.media)
                         } else if (post.feature.media is TimelinePostFeature.ImagesFeature) {
+                            if (post.feature.media.images.size > 1) {
+                                Modifier
+                                    .fillMaxWidth()
+                                    .height(250.dp)
+                            } else {
+                                Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(max = 650.dp)
+                            }
+
                             PostImageGrid(
                                 modifier = Modifier.fillMaxWidth(),
                                 images = { post.feature.media.images },
                                 onImageClick = {
                                     // TODO: Image Click Event
-                                    Toast.makeText(context, "TODO: Image Click", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "TODO: Image Click", Toast.LENGTH_SHORT)
+                                        .show()
                                 },
                                 onAltButtonClick = {
                                     // TODO: Alt Click Event
-                                    Toast.makeText(context, "TODO: Alt Click", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, "TODO: Alt Click", Toast.LENGTH_SHORT)
+                                        .show()
                                 }
                             )
                         }
@@ -263,25 +306,40 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
                         when (post.feature.post) {
                             is EmbedPost.VisibleEmbedPost
                                 -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
+
                             is EmbedPost.GeneratorViewEmbedPost
                                 -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post)
+
                             is EmbedPost.GraphListEmbedPost
                                 -> GraphListEmbed(Modifier.fillMaxWidth(), post.feature.post)
+
                             is EmbedPost.BlockedEmbedPost
-                                -> FeedWarningContainer(Modifier.fillMaxWidth(), "This post is made by a user whom you have blocked.")
+                                -> FeedWarningContainer(
+                                    Modifier.fillMaxWidth(),
+                                    "This post is made by a user whom you have blocked."
+                                   )
+
                             else -> {}
                         }
                     }
+
                     is TimelinePostFeature.PostFeature -> {
                         when (post.feature.post) {
                             is EmbedPost.VisibleEmbedPost
-                                -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
+                            -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
+
                             is EmbedPost.GeneratorViewEmbedPost
-                                -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                            -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post)
+
                             is EmbedPost.GraphListEmbedPost
-                                -> GraphListEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                            -> GraphListEmbed(Modifier.fillMaxWidth(), post.feature.post)
+
                             is EmbedPost.BlockedEmbedPost
-                                -> FeedWarningContainer(Modifier.fillMaxWidth(), "This post is made by a user whom you have blocked.")
+                            -> FeedWarningContainer(
+                                Modifier.fillMaxWidth(),
+                                "This post is made by a user whom you have blocked."
+                            )
+
                             else -> {}
                         }
                     }

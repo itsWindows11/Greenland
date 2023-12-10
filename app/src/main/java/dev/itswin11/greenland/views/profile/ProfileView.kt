@@ -36,6 +36,8 @@ import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
@@ -60,11 +62,13 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -88,6 +92,8 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
     val isRefreshing = viewModel.isRefreshing.collectAsStateWithLifecycle()
 
     val shouldChangeTabByPager = remember { mutableStateOf(true) }
+    val moreMenuOpened = remember { mutableStateOf(false) }
+    val moreButtonOffset = remember { mutableStateOf(0) }
 
     val tabs = remember { listOf("Posts", "Replies", "Media", "Likes") }
 
@@ -224,15 +230,13 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                 }
             }
 
-
-
             Box(
                 Modifier
                     .fillMaxWidth()
                     .height(114.dp)
                     .background(
                         brush = Brush.verticalGradient(
-                            0.5f to MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                            0.5f to MaterialTheme.colorScheme.surface,
                             1f to Color.Transparent
                         )
                     )
@@ -240,6 +244,7 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                 Row(
                     Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
                         .statusBarsPadding()
                 ) {
                     IconButton(onClick = { /*TODO*/ }) {
@@ -252,12 +257,26 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
 
                     Spacer(Modifier.weight(1f))
 
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(
+                        { moreMenuOpened.value = !moreMenuOpened.value },
+                        Modifier.onGloballyPositioned { moreButtonOffset.value = it.boundsInRoot().left.toInt() }
+                    ) {
                         Icon(
                             Icons.Rounded.MoreVert,
                             contentDescription = "More",
                             tint = MaterialTheme.colorScheme.onSurface
                         )
+                    }
+
+                    DropdownMenu(
+                        expanded = moreMenuOpened.value,
+                        onDismissRequest = { moreMenuOpened.value = false },
+                        offset = DpOffset(moreButtonOffset.value.dp, 0.dp)
+                    ) {
+                        DropdownMenuItem(text = { Text("Block", fontSize = 15.sp) }, onClick = { /*TODO*/ })
+                        DropdownMenuItem(text = { Text("Mute", fontSize = 15.sp) }, onClick = { /*TODO*/ })
+                        DropdownMenuItem(text = { Text("View Lists", fontSize = 15.sp) }, onClick = { /*TODO*/ })
+                        DropdownMenuItem(text = { Text("Add to Lists", fontSize = 15.sp) }, onClick = { /*TODO*/ })
                     }
                 }
             }
