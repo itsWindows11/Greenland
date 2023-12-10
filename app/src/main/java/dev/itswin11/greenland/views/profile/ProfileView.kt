@@ -1,5 +1,6 @@
 package dev.itswin11.greenland.views.profile
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,6 +27,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -38,6 +45,7 @@ import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -46,6 +54,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -64,7 +74,6 @@ import coil.request.ImageRequest
 import dev.itswin11.greenland.App
 import dev.itswin11.greenland.enums.UserProfileOverviewTabType
 import dev.itswin11.greenland.models.FullProfile
-import dev.itswin11.greenland.util.conditional
 import dev.itswin11.greenland.viewmodels.ProfileViewModel
 import dev.itswin11.greenland.views.AppTab
 import kotlinx.coroutines.launch
@@ -125,6 +134,11 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                 mutableStateOf(0.dp)
             }
 
+            val animatedPadding by animateDpAsState(
+                targetValue = if (scrollState.value.dp >= headerHeight.value) 72.dp else 0.dp,
+                label = "padding"
+            )
+
             Column(
                 Modifier
                     .fillMaxSize()
@@ -135,7 +149,7 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                 }, profile.value!!)
 
                 Column(Modifier.height(height)) {
-                    Surface(Modifier.conditional(scrollState.value.dp >= headerHeight.value, Modifier.statusBarsPadding())) {
+                    Surface(Modifier.padding(top = animatedPadding)) {
                         TabRow(
                             selectedTabIndex = selectedTab.value,
                             indicator = { tabPositions ->
@@ -206,6 +220,44 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                                 viewModel
                             )
                         }
+                    }
+                }
+            }
+
+
+
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .height(114.dp)
+                    .background(
+                        brush = Brush.verticalGradient(
+                            0.5f to MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+                            1f to Color.Transparent
+                        )
+                    )
+            ) {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                ) {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            Icons.Rounded.ArrowBack,
+                            contentDescription = "Back",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    Spacer(Modifier.weight(1f))
+
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(
+                            Icons.Rounded.MoreVert,
+                            contentDescription = "More",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
                 }
             }
