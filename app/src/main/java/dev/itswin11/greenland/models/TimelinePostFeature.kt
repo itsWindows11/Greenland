@@ -5,7 +5,6 @@ import app.bsky.embed.ImagesView
 import app.bsky.embed.RecordViewRecordUnion
 import app.bsky.embed.RecordWithMediaViewMediaUnion
 import app.bsky.feed.GeneratorViewerState
-import app.bsky.feed.Post
 import app.bsky.feed.PostViewEmbedUnion
 import app.bsky.graph.Token
 import dev.itswin11.greenland.models.EmbedPost.BlockedEmbedPost
@@ -17,7 +16,6 @@ import dev.itswin11.greenland.models.TimelinePostFeature.ExternalFeature
 import dev.itswin11.greenland.models.TimelinePostFeature.ImagesFeature
 import dev.itswin11.greenland.models.TimelinePostFeature.MediaPostFeature
 import dev.itswin11.greenland.models.TimelinePostFeature.PostFeature
-import dev.itswin11.greenland.util.deserialize
 import dev.itswin11.greenland.util.emptyImmutableList
 import dev.itswin11.greenland.util.mapImmutable
 import dev.itswin11.greenland.util.recordType
@@ -46,6 +44,10 @@ sealed interface TimelinePostFeature {
     data class MediaPostFeature(
         val post: EmbedPost,
         val media: TimelinePostMedia,
+    ) : TimelinePostFeature
+
+    data class MediaPostFeatureWithoutEmbedPost(
+        val media: TimelinePostMedia
     ) : TimelinePostFeature
 }
 
@@ -160,7 +162,7 @@ private fun ExternalView.toExternalFeature(): ExternalFeature {
     )
 }
 
-private fun RecordViewRecordUnion.toEmbedPost(): EmbedPost {
+fun RecordViewRecordUnion.toEmbedPost(): EmbedPost {
     return when (this) {
         is RecordViewRecordUnion.ViewBlocked -> {
             BlockedEmbedPost(
@@ -181,7 +183,7 @@ private fun RecordViewRecordUnion.toEmbedPost(): EmbedPost {
                 )
             }
 
-            val litePost = Post.serializer().deserialize(value.value).toLitePost()
+            val litePost = value.toLitePost()
 
             VisibleEmbedPost(
                 uri = value.uri,

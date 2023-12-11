@@ -343,6 +343,7 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
                             else -> {}
                         }
                     }
+                    else -> {}
                 }
             }
         }

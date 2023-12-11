@@ -1,6 +1,7 @@
 package dev.itswin11.greenland.views.profile
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,12 +48,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -93,7 +95,7 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
 
     val shouldChangeTabByPager = remember { mutableStateOf(true) }
     val moreMenuOpened = remember { mutableStateOf(false) }
-    val moreButtonOffset = remember { mutableStateOf(0) }
+    val moreButtonOffset = remember { mutableIntStateOf(0) }
 
     val tabs = remember { listOf("Posts", "Replies", "Media", "Likes") }
 
@@ -101,6 +103,8 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
     val coroutineScope = rememberCoroutineScope()
 
     val scrollState = rememberScrollState()
+
+    val displayName = remember { profile.value?.displayName ?: profile.value?.handle?.handle }
 
     val pullRefreshState = rememberPullRefreshState(
         refreshing = isRefreshing.value,
@@ -140,8 +144,18 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                 mutableStateOf(0.dp)
             }
 
+            val topBarProfileInfoOpacity by animateFloatAsState(
+                targetValue = if (scrollState.value.dp >= 320.dp) 1f else 0f,
+                label = "alpha"
+            )
+
+            val topBarScrollAlpha by animateFloatAsState(
+                targetValue = if (scrollState.value.dp >= 200.dp) 1f else 0.7f,
+                label = "alpha"
+            )
+
             val animatedPadding by animateDpAsState(
-                targetValue = if (scrollState.value.dp >= headerHeight.value) 72.dp else 0.dp,
+                targetValue = if (scrollState.value.dp >= headerHeight.value) 86.dp else 0.dp,
                 label = "padding"
             )
 
@@ -238,7 +252,8 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                         brush = Brush.verticalGradient(
                             0.5f to MaterialTheme.colorScheme.surface,
                             1f to Color.Transparent
-                        )
+                        ),
+                        alpha = topBarScrollAlpha
                     )
             ) {
                 Row(
@@ -247,7 +262,7 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                         .padding(horizontal = 8.dp)
                         .statusBarsPadding()
                 ) {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = { /*TODO*/ }, Modifier.padding(top = 8.dp)) {
                         Icon(
                             Icons.Rounded.ArrowBack,
                             contentDescription = "Back",
@@ -255,11 +270,52 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                         )
                     }
 
-                    Spacer(Modifier.weight(1f))
+                    Row(
+                        Modifier
+                            .weight(1f)
+                            .padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        AsyncImage(
+                            modifier = Modifier
+                                .width(32.dp)
+                                .height(32.dp)
+                                .clip(CircleShape)
+                                .alpha(topBarProfileInfoOpacity),
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(profile.value!!.avatar)
+                                .crossfade(500)
+                                .build(),
+                            contentDescription = "Profile picture of $displayName"
+                        )
+
+                        if (profile.value!!.displayName != null) {
+                            Column(Modifier.alpha(topBarProfileInfoOpacity)) {
+                                Text(
+                                    profile.value!!.displayName!!,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+
+                                Text(
+                                    "@${profile.value!!.handle.handle}",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        } else {
+                            Text(
+                                "@${profile.value!!.handle.handle}",
+                                Modifier.alpha(topBarProfileInfoOpacity),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
 
                     IconButton(
                         { moreMenuOpened.value = !moreMenuOpened.value },
-                        Modifier.onGloballyPositioned { moreButtonOffset.value = it.boundsInRoot().left.toInt() }
+                        Modifier.onGloballyPositioned {
+                            moreButtonOffset.intValue = it.boundsInRoot().left.toInt()
+                        }.padding(top = 8.dp)
                     ) {
                         Icon(
                             Icons.Rounded.MoreVert,
@@ -271,12 +327,20 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
                     DropdownMenu(
                         expanded = moreMenuOpened.value,
                         onDismissRequest = { moreMenuOpened.value = false },
-                        offset = DpOffset(moreButtonOffset.value.dp, 0.dp)
+                        offset = DpOffset(moreButtonOffset.intValue.dp, 0.dp)
                     ) {
-                        DropdownMenuItem(text = { Text("Block", fontSize = 15.sp) }, onClick = { /*TODO*/ })
-                        DropdownMenuItem(text = { Text("Mute", fontSize = 15.sp) }, onClick = { /*TODO*/ })
-                        DropdownMenuItem(text = { Text("View Lists", fontSize = 15.sp) }, onClick = { /*TODO*/ })
-                        DropdownMenuItem(text = { Text("Add to Lists", fontSize = 15.sp) }, onClick = { /*TODO*/ })
+                        DropdownMenuItem(
+                            text = { Text("Block", fontSize = 15.sp) },
+                            onClick = { /*TODO*/ })
+                        DropdownMenuItem(
+                            text = { Text("Mute", fontSize = 15.sp) },
+                            onClick = { /*TODO*/ })
+                        DropdownMenuItem(
+                            text = { Text("View Lists", fontSize = 15.sp) },
+                            onClick = { /*TODO*/ })
+                        DropdownMenuItem(
+                            text = { Text("Add to Lists", fontSize = 15.sp) },
+                            onClick = { /*TODO*/ })
                     }
                 }
             }
@@ -346,7 +410,8 @@ private fun ProfileViewHeader(modifier: Modifier = Modifier, profile: FullProfil
                         displayName,
                         modifier = Modifier.padding(top = 8.dp),
                         style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1
                     )
 
                     if (profile.followingMe) {
