@@ -32,11 +32,12 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.itswin11.greenland.activities.home.timeAgo
 import dev.itswin11.greenland.models.EmbedPost
+import dev.itswin11.greenland.models.LitePost
 import dev.itswin11.greenland.models.TimelinePostFeature
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EmbeddedPost(modifier: Modifier = Modifier, post: EmbedPost.VisibleEmbedPost) {
+fun EmbeddedPost(modifier: Modifier = Modifier, post: EmbedPost.VisibleEmbedPost, onPostClick: (post: LitePost) -> Unit) {
     val context = LocalContext.current
 
     val displayName = remember { post.author.displayName ?: post.author.handle.handle }
@@ -59,7 +60,7 @@ fun EmbeddedPost(modifier: Modifier = Modifier, post: EmbedPost.VisibleEmbedPost
             ),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         shape = RoundedCornerShape(12.dp),
-        onClick = { }
+        onClick = { onPostClick(post.litePost) }
     ) {
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {

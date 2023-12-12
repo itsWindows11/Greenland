@@ -32,6 +32,15 @@ data class TimelinePost(
     val tags: List<String>
 )
 
+fun TimelinePost.toLitePost(): LitePost {
+    return LitePost(
+        text = text,
+        links = textLinks,
+        createdAt = createdAt,
+        embed = feature
+    )
+}
+
 fun FeedViewPost.toPost(): TimelinePost? {
     return post.toPost(
         reply = reply?.toReply(),

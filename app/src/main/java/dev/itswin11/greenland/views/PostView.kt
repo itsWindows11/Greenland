@@ -52,11 +52,13 @@ import dev.itswin11.greenland.R
 import dev.itswin11.greenland.activities.home.timeAgo
 import dev.itswin11.greenland.models.EmbedPost
 import dev.itswin11.greenland.models.Label
+import dev.itswin11.greenland.models.LitePost
 import dev.itswin11.greenland.models.Moment
 import dev.itswin11.greenland.models.TimelinePost
 import dev.itswin11.greenland.models.TimelinePostFeature
 import dev.itswin11.greenland.models.TimelinePostLink
 import dev.itswin11.greenland.models.TimelinePostReason
+import dev.itswin11.greenland.models.toLitePost
 import dev.itswin11.greenland.models.toPost
 import dev.itswin11.greenland.models.toProfile
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
@@ -73,7 +75,8 @@ import sh.christian.ozone.api.Handle
 fun PostView(
     post: TimelinePost,
     isThreadChild: Boolean = false,
-    hasThreadChild: Boolean = false
+    hasThreadChild: Boolean = false,
+    onPostClick: (post: LitePost) -> Unit
 ) {
     val displayName = remember { post.author.displayName ?: post.author.handle }
     val paddingModifier =
@@ -87,7 +90,7 @@ fun PostView(
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Card(
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-            onClick = {},
+            onClick = { onPostClick(post.toLitePost()) },
             shape = RoundedCornerShape(0.dp)
         ) {
             if (post.reposted && post.reason is TimelinePostReason.TimelinePostRepost) {
@@ -167,6 +170,7 @@ fun PostView(
                         }
                         .fillMaxHeight(),
                     post = post,
+                    onPostClick = onPostClick
                 )
             }
         }
@@ -175,7 +179,7 @@ fun PostView(
 
 // TODO: Implement post interactions
 @Composable
-fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
+fun PostContent(modifier: Modifier = Modifier, post: TimelinePost, onPostClick: (post: LitePost) -> Unit) {
     val displayName = remember { post.author.displayName ?: post.author.handle.handle }
     val timeAgoString = remember { timeAgo(post.createdAt.instant.epochSeconds) }
 
@@ -305,7 +309,7 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
 
                         when (post.feature.post) {
                             is EmbedPost.VisibleEmbedPost
-                                -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
+                                -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post, onPostClick)
 
                             is EmbedPost.GeneratorViewEmbedPost
                                 -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post)
@@ -326,7 +330,7 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost) {
                     is TimelinePostFeature.PostFeature -> {
                         when (post.feature.post) {
                             is EmbedPost.VisibleEmbedPost
-                            -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post)
+                            -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post, onPostClick)
 
                             is EmbedPost.GeneratorViewEmbedPost
                             -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post)
@@ -494,6 +498,6 @@ fun PostViewPreview() {
     )
 
     GreenlandTheme {
-        PostView(bskyPost!!)
+        PostView(bskyPost!!, onPostClick = {})
     }
 }

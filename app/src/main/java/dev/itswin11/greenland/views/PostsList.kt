@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.collectAsLazyPagingItems
+import dev.itswin11.greenland.models.LitePost
 import dev.itswin11.greenland.models.TimelinePost
 import kotlinx.coroutines.flow.Flow
 
@@ -36,7 +37,8 @@ fun PostsList(
     scrollState: LazyListState,
     posts: Flow<PagingData<TimelinePost>>,
     titleBarConnection: NestedScrollConnection,
-    fabConnection: NestedScrollConnection
+    fabConnection: NestedScrollConnection,
+    onPostClick: (post: LitePost) -> Unit
 ) {
     val postsList = posts.collectAsLazyPagingItems()
 
@@ -62,7 +64,7 @@ fun PostsList(
                 val post = remember { postsList[index] }
 
                 post?.let {
-                    FeedPostSlice(it)
+                    FeedPostSlice(it, onPostClick = onPostClick)
                     Divider()
                 }
             }

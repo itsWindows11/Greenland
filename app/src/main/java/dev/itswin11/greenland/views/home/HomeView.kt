@@ -42,12 +42,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.itswin11.greenland.models.LitePost
 import dev.itswin11.greenland.viewmodels.HomeViewModel
 import dev.itswin11.greenland.views.PostsList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeView(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel()) {
+fun HomeView(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = viewModel(),
+    onPostClick: (post: LitePost) -> Unit
+) {
     val scrollState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
 
@@ -100,11 +105,14 @@ fun HomeView(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel
             )
 
             PostsList(
-                Modifier.weight(1f).fillMaxWidth(),
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
                 scrollState,
                 posts,
                 pinnedScrollBehavior.nestedScrollConnection,
-                fabNestedScrollConnection
+                fabNestedScrollConnection,
+                onPostClick
             )
         }
 

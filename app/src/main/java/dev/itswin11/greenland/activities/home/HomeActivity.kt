@@ -83,7 +83,9 @@ class HomeActivity : ComponentActivity() {
                             exitTransition = { ExitTransition.None }
                         ) {
                             composable("home") {
-                                HomeView()
+                                HomeView { post ->
+                                    // TODO: implement thread view.
+                                }
                             }
                             composable("explore") {
                                 ExploreView()
@@ -93,6 +95,9 @@ class HomeActivity : ComponentActivity() {
                             }
                             composable("profile") {
                                 ProfileView()
+                            }
+                            composable("threadView") {
+                                // TODO
                             }
                         }
 
