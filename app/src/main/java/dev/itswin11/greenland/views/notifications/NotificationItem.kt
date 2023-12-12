@@ -78,11 +78,11 @@ fun NotificationItem(modifier: Modifier, notification: Notification, onClick: ()
                 )
             }
         } else if (notification.content is Notification.Content.Quoted) {
-            PostView(notification.content.post)
+            PostView(notification.content.post, onPostClick = {/*TODO*/})
         } else if (notification.content is Notification.Content.RepliedTo) {
-            PostView(notification.content.post)
+            PostView(notification.content.post, onPostClick = {/*TODO*/})
         } else if (notification.content is Notification.Content.Mentioned) {
-            PostView(notification.content.post)
+            PostView(notification.content.post, onPostClick = {/*TODO*/})
         }
     }
 }
