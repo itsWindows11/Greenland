@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -87,7 +88,12 @@ import sh.christian.ozone.api.AtIdentifier
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterialApi::class)
 @Composable
-fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewModel()) {
+fun ProfileView(
+    actor: AtIdentifier? = null,
+    viewModel: ProfileViewModel = viewModel(),
+    onFollowingClicked: (profileIdentifier: AtIdentifier) -> Unit,
+    onFollowerClicked: (profileIdentifier: AtIdentifier) -> Unit
+) {
     val profile = viewModel.profile.collectAsStateWithLifecycle()
     val selectedTab = viewModel.selectedTab.collectAsStateWithLifecycle()
 
@@ -133,245 +139,249 @@ fun ProfileView(actor: AtIdentifier? = null, viewModel: ProfileViewModel = viewM
             viewModel.getProfile(actor)
     }
 
-    if (profile.value != null) {
-        BoxWithConstraints(
-            Modifier
-                .fillMaxSize()
-                .pullRefresh(pullRefreshState)
-        ) {
-            val height = maxHeight
-            val headerHeight = remember {
-                mutableStateOf(0.dp)
-            }
-
-            val topBarProfileInfoOpacity by animateFloatAsState(
-                targetValue = if (scrollState.value.dp >= 320.dp) 1f else 0f,
-                label = "alpha"
-            )
-
-            val topBarScrollAlpha by animateFloatAsState(
-                targetValue = if (scrollState.value.dp >= 200.dp) 1f else 0.7f,
-                label = "alpha"
-            )
-
-            val animatedPadding by animateDpAsState(
-                targetValue = if (scrollState.value.dp >= headerHeight.value) 86.dp else 0.dp,
-                label = "padding"
-            )
-
-            Column(
+    Surface(Modifier.fillMaxSize()) {
+        if (profile.value != null) {
+            BoxWithConstraints(
                 Modifier
                     .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .pullRefresh(pullRefreshState)
             ) {
-                ProfileViewHeader(Modifier.onGloballyPositioned {
-                    headerHeight.value = it.size.height.dp - 2.dp
-                }, profile.value!!)
+                val height = maxHeight
+                val headerHeight = remember {
+                    mutableStateOf(0.dp)
+                }
 
-                Column(Modifier.height(height)) {
-                    Surface(Modifier.padding(top = animatedPadding)) {
-                        TabRow(
-                            selectedTabIndex = selectedTab.value,
-                            indicator = { tabPositions ->
-                                TabRowDefaults.Indicator(
-                                    modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                                    height = 2.dp,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            },
-                        ) {
-                            tabs.forEachIndexed { index, title ->
-                                AppTab(
-                                    title = title,
-                                    onClick = {
-                                        shouldChangeTabByPager.value = false
-                                        viewModel.setSelectedTab(index)
-                                        coroutineScope.launch {
-                                            pagerState.animateScrollToPage(index)
-                                            shouldChangeTabByPager.value = true
+                val topBarProfileInfoOpacity by animateFloatAsState(
+                    targetValue = if (scrollState.value.dp >= 320.dp) 1f else 0f,
+                    label = "alpha"
+                )
+
+                val topBarScrollAlpha by animateFloatAsState(
+                    targetValue = if (scrollState.value.dp >= 200.dp) 1f else 0.7f,
+                    label = "alpha"
+                )
+
+                val animatedPadding by animateDpAsState(
+                    targetValue = if (scrollState.value.dp >= headerHeight.value) 86.dp else 0.dp,
+                    label = "padding"
+                )
+
+                Column(
+                    Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                ) {
+                    ProfileViewHeader(Modifier.onGloballyPositioned {
+                        headerHeight.value = it.size.height.dp - 2.dp
+                    }, profile.value!!, onFollowingClicked, onFollowerClicked)
+
+                    Column(Modifier.height(height)) {
+                        Surface(Modifier.padding(top = animatedPadding)) {
+                            TabRow(
+                                selectedTabIndex = selectedTab.value,
+                                indicator = { tabPositions ->
+                                    TabRowDefaults.Indicator(
+                                        modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                                        height = 2.dp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                },
+                            ) {
+                                tabs.forEachIndexed { index, title ->
+                                    AppTab(
+                                        title = title,
+                                        onClick = {
+                                            shouldChangeTabByPager.value = false
+                                            viewModel.setSelectedTab(index)
+                                            coroutineScope.launch {
+                                                pagerState.animateScrollToPage(index)
+                                                shouldChangeTabByPager.value = true
+                                            }
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .nestedScroll(remember {
+                                    object : NestedScrollConnection {
+                                        override fun onPreScroll(
+                                            available: Offset,
+                                            source: NestedScrollSource
+                                        ): Offset {
+                                            return if (available.y > 0) Offset.Zero else Offset(
+                                                x = 0f,
+                                                y = -scrollState.dispatchRawDelta(-available.y)
+                                            )
                                         }
                                     }
+                                }),
+                            beyondBoundsPageCount = 0
+                        ) {
+                            when (it) {
+                                0 -> UserProfileOverview(
+                                    UserProfileOverviewTabType.POSTS,
+                                    Modifier.fillMaxSize(),
+                                    viewModel
+                                )
+
+                                1 -> UserProfileOverview(
+                                    UserProfileOverviewTabType.REPLIES,
+                                    Modifier.fillMaxSize(),
+                                    viewModel
+                                )
+
+                                2 -> UserProfileOverview(
+                                    UserProfileOverviewTabType.MEDIA,
+                                    Modifier.fillMaxSize(),
+                                    viewModel
+                                )
+
+                                3 -> UserProfileOverview(
+                                    UserProfileOverviewTabType.LIKES,
+                                    Modifier.fillMaxSize(),
+                                    viewModel
                                 )
                             }
                         }
                     }
+                }
 
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier
-                            .fillMaxHeight()
-                            .nestedScroll(remember {
-                                object : NestedScrollConnection {
-                                    override fun onPreScroll(
-                                        available: Offset,
-                                        source: NestedScrollSource
-                                    ): Offset {
-                                        return if (available.y > 0) Offset.Zero else Offset(
-                                            x = 0f,
-                                            y = -scrollState.dispatchRawDelta(-available.y)
-                                        )
-                                    }
-                                }
-                            }),
-                        beyondBoundsPageCount = 0
+                Box(
+                    Modifier
+                        .fillMaxWidth()
+                        .height(114.dp)
+                        .background(
+                            brush = Brush.verticalGradient(
+                                0.5f to MaterialTheme.colorScheme.surface,
+                                1f to Color.Transparent
+                            ),
+                            alpha = topBarScrollAlpha
+                        )
+                ) {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp)
+                            .statusBarsPadding()
                     ) {
-                        when (it) {
-                            0 -> UserProfileOverview(
-                                UserProfileOverviewTabType.POSTS,
-                                Modifier.fillMaxSize(),
-                                viewModel
+                        IconButton(onClick = { /*TODO*/ }, Modifier.padding(top = 8.dp)) {
+                            Icon(
+                                Icons.Rounded.ArrowBack,
+                                contentDescription = "Back",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        Row(
+                            Modifier
+                                .weight(1f)
+                                .padding(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            AsyncImage(
+                                modifier = Modifier
+                                    .width(32.dp)
+                                    .height(32.dp)
+                                    .clip(CircleShape)
+                                    .alpha(topBarProfileInfoOpacity),
+                                model = ImageRequest.Builder(LocalContext.current)
+                                    .data(profile.value!!.avatar)
+                                    .crossfade(500)
+                                    .build(),
+                                contentDescription = "Profile picture of $displayName"
                             )
 
-                            1 -> UserProfileOverview(
-                                UserProfileOverviewTabType.REPLIES,
-                                Modifier.fillMaxSize(),
-                                viewModel
-                            )
+                            if (profile.value!!.displayName != null) {
+                                Column(Modifier.alpha(topBarProfileInfoOpacity)) {
+                                    Text(
+                                        profile.value!!.displayName!!,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
 
-                            2 -> UserProfileOverview(
-                                UserProfileOverviewTabType.MEDIA,
-                                Modifier.fillMaxSize(),
-                                viewModel
-                            )
+                                    Text(
+                                        "@${profile.value!!.handle.handle}",
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            } else {
+                                Text(
+                                    "@${profile.value!!.handle.handle}",
+                                    Modifier.alpha(topBarProfileInfoOpacity),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
 
-                            3 -> UserProfileOverview(
-                                UserProfileOverviewTabType.LIKES,
-                                Modifier.fillMaxSize(),
-                                viewModel
+                        IconButton(
+                            { moreMenuOpened.value = !moreMenuOpened.value },
+                            Modifier
+                                .onGloballyPositioned {
+                                    moreButtonOffset.intValue = it.boundsInRoot().left.toInt()
+                                }
+                                .padding(top = 8.dp)
+                        ) {
+                            Icon(
+                                Icons.Rounded.MoreVert,
+                                contentDescription = "More",
+                                tint = MaterialTheme.colorScheme.onSurface
                             )
+                        }
+
+                        DropdownMenu(
+                            expanded = moreMenuOpened.value,
+                            onDismissRequest = { moreMenuOpened.value = false },
+                            offset = DpOffset(moreButtonOffset.intValue.dp, 0.dp)
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Block", fontSize = 15.sp) },
+                                onClick = { /*TODO*/ })
+                            DropdownMenuItem(
+                                text = { Text("Mute", fontSize = 15.sp) },
+                                onClick = { /*TODO*/ })
+                            DropdownMenuItem(
+                                text = { Text("View Lists", fontSize = 15.sp) },
+                                onClick = { /*TODO*/ })
+                            DropdownMenuItem(
+                                text = { Text("Add to Lists", fontSize = 15.sp) },
+                                onClick = { /*TODO*/ })
                         }
                     }
                 }
-            }
 
+                PullRefreshIndicator(
+                    isRefreshing.value,
+                    pullRefreshState,
+                    Modifier.align(Alignment.TopCenter),
+                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    scale = true
+                )
+            }
+        } else {
             Box(
                 Modifier
                     .fillMaxWidth()
-                    .height(114.dp)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            0.5f to MaterialTheme.colorScheme.surface,
-                            1f to Color.Transparent
-                        ),
-                        alpha = topBarScrollAlpha
-                    )
+                    .padding(0.dp, 12.dp, 0.dp, 0.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp)
-                        .statusBarsPadding()
-                ) {
-                    IconButton(onClick = { /*TODO*/ }, Modifier.padding(top = 8.dp)) {
-                        Icon(
-                            Icons.Rounded.ArrowBack,
-                            contentDescription = "Back",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                    Row(
-                        Modifier
-                            .weight(1f)
-                            .padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        AsyncImage(
-                            modifier = Modifier
-                                .width(32.dp)
-                                .height(32.dp)
-                                .clip(CircleShape)
-                                .alpha(topBarProfileInfoOpacity),
-                            model = ImageRequest.Builder(LocalContext.current)
-                                .data(profile.value!!.avatar)
-                                .crossfade(500)
-                                .build(),
-                            contentDescription = "Profile picture of $displayName"
-                        )
-
-                        if (profile.value!!.displayName != null) {
-                            Column(Modifier.alpha(topBarProfileInfoOpacity)) {
-                                Text(
-                                    profile.value!!.displayName!!,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-
-                                Text(
-                                    "@${profile.value!!.handle.handle}",
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        } else {
-                            Text(
-                                "@${profile.value!!.handle.handle}",
-                                Modifier.alpha(topBarProfileInfoOpacity),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-                    }
-
-                    IconButton(
-                        { moreMenuOpened.value = !moreMenuOpened.value },
-                        Modifier.onGloballyPositioned {
-                            moreButtonOffset.intValue = it.boundsInRoot().left.toInt()
-                        }.padding(top = 8.dp)
-                    ) {
-                        Icon(
-                            Icons.Rounded.MoreVert,
-                            contentDescription = "More",
-                            tint = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                    DropdownMenu(
-                        expanded = moreMenuOpened.value,
-                        onDismissRequest = { moreMenuOpened.value = false },
-                        offset = DpOffset(moreButtonOffset.intValue.dp, 0.dp)
-                    ) {
-                        DropdownMenuItem(
-                            text = { Text("Block", fontSize = 15.sp) },
-                            onClick = { /*TODO*/ })
-                        DropdownMenuItem(
-                            text = { Text("Mute", fontSize = 15.sp) },
-                            onClick = { /*TODO*/ })
-                        DropdownMenuItem(
-                            text = { Text("View Lists", fontSize = 15.sp) },
-                            onClick = { /*TODO*/ })
-                        DropdownMenuItem(
-                            text = { Text("Add to Lists", fontSize = 15.sp) },
-                            onClick = { /*TODO*/ })
-                    }
-                }
+                CircularProgressIndicator(
+                    modifier = Modifier.requiredWidth(48.dp),
+                    color = MaterialTheme.colorScheme.secondary
+                )
             }
-
-            PullRefreshIndicator(
-                isRefreshing.value,
-                pullRefreshState,
-                Modifier.align(Alignment.TopCenter),
-                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                scale = true
-            )
-        }
-    } else {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .padding(0.dp, 12.dp, 0.dp, 0.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.requiredWidth(48.dp),
-                color = MaterialTheme.colorScheme.secondary
-            )
         }
     }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun ProfileViewHeader(modifier: Modifier = Modifier, profile: FullProfile) {
+private fun ProfileViewHeader(modifier: Modifier = Modifier, profile: FullProfile, onFollowingClicked: (profileIdentifier: AtIdentifier) -> Unit, onFollowerClicked: (profileIdentifier: AtIdentifier) -> Unit) {
     val displayName = remember { profile.displayName ?: profile.handle.handle }
 
     Box(modifier) {
@@ -453,7 +463,8 @@ private fun ProfileViewHeader(modifier: Modifier = Modifier, profile: FullProfil
                             pushStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant))
 
                             append(" followers")
-                        }
+                        },
+                        Modifier.clickable { onFollowerClicked(AtIdentifier(profile.did.did)) }
                     )
 
                     Text(
@@ -471,7 +482,8 @@ private fun ProfileViewHeader(modifier: Modifier = Modifier, profile: FullProfil
                             pushStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant))
 
                             append(" following")
-                        }
+                        },
+                        Modifier.clickable { onFollowingClicked(AtIdentifier(profile.did.did)) }
                     )
                 }
 

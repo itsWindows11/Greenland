@@ -24,6 +24,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
@@ -78,56 +79,58 @@ fun HomeView(
 
     val pinnedScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(topAppBarState)
 
-    Box(modifier.fillMaxSize()) {
-        Column {
-            CenterAlignedTopAppBar(
-                title = {
-                    OutlinedButton(
-                        onClick = {},
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.Transparent,
-                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        border = BorderStroke(0.dp, Color.Transparent),
-                        contentPadding = PaddingValues(8.dp, 0.dp),
-                    ) {
-                        Text("Home", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                        Icon(
-                            Icons.Rounded.ChevronRight,
-                            contentDescription = "",
-                            modifier = Modifier
-                                .rotate(90f)
-                                .offset(2.dp, (-4).dp)
-                        )
-                    }
-                },
-                scrollBehavior = pinnedScrollBehavior
-            )
+    Surface(modifier.fillMaxSize()) {
+        Box(Modifier.fillMaxSize()) {
+            Column {
+                CenterAlignedTopAppBar(
+                    title = {
+                        OutlinedButton(
+                            onClick = {},
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Transparent,
+                                contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                            ),
+                            border = BorderStroke(0.dp, Color.Transparent),
+                            contentPadding = PaddingValues(8.dp, 0.dp),
+                        ) {
+                            Text("Home", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                            Icon(
+                                Icons.Rounded.ChevronRight,
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .rotate(90f)
+                                    .offset(2.dp, (-4).dp)
+                            )
+                        }
+                    },
+                    scrollBehavior = pinnedScrollBehavior
+                )
 
-            PostsList(
-                Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                scrollState,
-                posts,
-                pinnedScrollBehavior.nestedScrollConnection,
-                fabNestedScrollConnection,
-                onPostClick
-            )
-        }
+                PostsList(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    scrollState,
+                    posts,
+                    pinnedScrollBehavior.nestedScrollConnection,
+                    fabNestedScrollConnection,
+                    onPostClick
+                )
+            }
 
-        AnimatedVisibility(
-            visible = isFabVisible.value,
-            enter = scaleIn() + fadeIn(),
-            exit = scaleOut() + fadeOut(),
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(0.dp, 0.dp, 20.dp, 20.dp)
-        ) {
-            FloatingActionButton(
-                onClick = { /*TODO*/ }
+            AnimatedVisibility(
+                visible = isFabVisible.value,
+                enter = scaleIn() + fadeIn(),
+                exit = scaleOut() + fadeOut(),
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(0.dp, 0.dp, 20.dp, 20.dp)
             ) {
-                Icon(Icons.Rounded.Add, contentDescription = "Add")
+                FloatingActionButton(
+                    onClick = { /*TODO*/ }
+                ) {
+                    Icon(Icons.Rounded.Add, contentDescription = "Add")
+                }
             }
         }
     }
