@@ -33,6 +33,7 @@ data class LiteProfile(
     override val followedByMe: Boolean,
     @Serializable(ImmutableListSerializer::class)
     override val labels: ImmutableList<Label>,
+    val description: String?
 ) : Profile
 
 @Serializable
@@ -83,6 +84,7 @@ fun ProfileViewBasic.toProfile(): Profile {
         followingMe = viewer?.followedBy != null,
         followedByMe = viewer?.following != null,
         labels = labels.mapImmutable { it.toLabel() },
+        description = null
     )
 }
 
@@ -96,5 +98,6 @@ fun ProfileView.toProfile(): Profile {
         followingMe = viewer?.followedBy != null,
         followedByMe = viewer?.following != null,
         labels = labels.mapImmutable { it.toLabel() },
+        description = description
     )
 }

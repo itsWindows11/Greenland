@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
@@ -71,104 +72,106 @@ fun ExploreView(modifier: Modifier = Modifier, viewModel: ExploreViewModel = vie
         viewModel.loadData()
     }
 
-    if (initiallyLoaded.value) {
-        Column(modifier.fillMaxSize()) {
-            CenterAlignedTopAppBar(
-                title = {
-                    Text("Explore", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-                },
-                scrollBehavior = pinnedScrollBehavior
-            )
+    Surface(modifier.fillMaxSize()) {
+        if (initiallyLoaded.value) {
+            Column(Modifier.fillMaxSize()) {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text("Explore", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                    },
+                    scrollBehavior = pinnedScrollBehavior
+                )
 
-            Box(
-                Modifier
-                    .weight(1f)
-                    .fillMaxSize()
-                    .pullRefresh(pullRefreshState)) {
-                LazyColumn(Modifier.nestedScroll(pinnedScrollBehavior.nestedScrollConnection)) {
-                    item {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                            onClick = {},
-                            shape = RoundedCornerShape(0.dp)
-                        ) {
-                            Row(Modifier.padding(16.dp, 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(
-                                    "Feeds for you",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    modifier = Modifier.padding(4.dp, 0.dp, 0.dp, 0.dp)
-                                )
+                Box(
+                    Modifier
+                        .weight(1f)
+                        .fillMaxSize()
+                        .pullRefresh(pullRefreshState)) {
+                    LazyColumn(Modifier.nestedScroll(pinnedScrollBehavior.nestedScrollConnection)) {
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                                onClick = {},
+                                shape = RoundedCornerShape(0.dp)
+                            ) {
+                                Row(Modifier.padding(16.dp, 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        "Feeds for you",
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = Modifier.padding(4.dp, 0.dp, 0.dp, 0.dp)
+                                    )
 
-                                Spacer(Modifier.weight(1f))
+                                    Spacer(Modifier.weight(1f))
 
-                                Icon(
-                                    Icons.Rounded.ChevronRight,
-                                    contentDescription = null,
-                                    Modifier.size(32.dp)
-                                )
-                            }
-                        }
-
-                        if (feeds.value != null) {
-                            Column(Modifier.padding(4.dp, 0.dp)) {
-                                feeds.value!!.forEach { feed ->
-                                    FeedCard(Modifier.padding(4.dp, 2.dp), feed)
+                                    Icon(
+                                        Icons.Rounded.ChevronRight,
+                                        contentDescription = null,
+                                        Modifier.size(32.dp)
+                                    )
                                 }
                             }
+
+                            if (feeds.value != null) {
+                                Column(Modifier.padding(4.dp, 0.dp)) {
+                                    feeds.value!!.forEach { feed ->
+                                        FeedCard(Modifier.padding(4.dp, 2.dp), feed)
+                                    }
+                                }
+                            }
+
+                            Spacer(Modifier.height(4.dp))
+
+                            Divider()
+
+                            Spacer(Modifier.height(4.dp))
+
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
+                                onClick = {},
+                                shape = RoundedCornerShape(0.dp)
+                            ) {
+                                Text(
+                                    "Suggested follows",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.padding(20.dp, 8.dp)
+                                )
+                            }
                         }
 
-                        Spacer(Modifier.height(4.dp))
-
-                        Divider()
-
-                        Spacer(Modifier.height(4.dp))
-
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                            onClick = {},
-                            shape = RoundedCornerShape(0.dp)
-                        ) {
-                            Text(
-                                "Suggested follows",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                modifier = Modifier.padding(20.dp, 8.dp)
+                        items(suggestedFollows.value?.size ?: 0) { index ->
+                            ExploreSuggestedFollowItem(
+                                modifier = Modifier.padding(8.dp, 4.dp),
+                                profileView = suggestedFollows.value!![index]
                             )
                         }
                     }
 
-                    items(suggestedFollows.value?.size ?: 0) { index ->
-                        ExploreSuggestedFollowItem(
-                            modifier = Modifier.padding(8.dp, 4.dp),
-                            profileView = suggestedFollows.value!![index]
-                        )
-                    }
+                    PullRefreshIndicator(
+                        refreshing.value,
+                        pullRefreshState,
+                        Modifier.align(Alignment.TopCenter),
+                        backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        scale = true
+                    )
                 }
-
-                PullRefreshIndicator(
-                    refreshing.value,
-                    pullRefreshState,
-                    Modifier.align(Alignment.TopCenter),
-                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                    scale = true
+            }
+        } else {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(0.dp, 12.dp, 0.dp, 0.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.requiredWidth(48.dp),
+                    color = MaterialTheme.colorScheme.secondary
                 )
             }
-        }
-    } else {
-        Box(
-            modifier
-                .fillMaxWidth()
-                .padding(0.dp, 12.dp, 0.dp, 0.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier.requiredWidth(48.dp),
-                color = MaterialTheme.colorScheme.secondary
-            )
         }
     }
 }

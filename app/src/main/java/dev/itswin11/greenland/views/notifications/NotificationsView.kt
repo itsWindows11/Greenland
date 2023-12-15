@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Surface
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
@@ -50,52 +51,64 @@ fun NotificationsView(viewModel: NotificationsViewModel = viewModel()) {
         refreshingOffset = 60.dp
     )
 
-    Column(Modifier.fillMaxSize()) {
-        CenterAlignedTopAppBar(
-            title = {
-                Text("Notifications", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
-            },
-            scrollBehavior = pinnedScrollBehavior
-        )
+    Surface(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize()) {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text("Notifications", fontSize = 20.sp, fontWeight = FontWeight.SemiBold)
+                },
+                scrollBehavior = pinnedScrollBehavior
+            )
 
-        Box(Modifier.weight(1f).fillMaxWidth().pullRefresh(pullRefreshState)) {
-            LazyColumn(Modifier.nestedScroll(pinnedScrollBehavior.nestedScrollConnection)) {
-                items(notifications.itemCount) {
-                    val notification = notifications[it]
+            Box(
+                Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .pullRefresh(pullRefreshState)) {
+                LazyColumn(Modifier.nestedScroll(pinnedScrollBehavior.nestedScrollConnection)) {
+                    items(notifications.itemCount) {
+                        val notification = notifications[it]
 
-                    if (notification != null) {
-                        NotificationItem(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .conditional(
-                                    !notification.isRead,
-                                    Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.05f))
-                                ),
-                            notification = notification,
-                            onClick = {}
-                        )
+                        if (notification != null) {
+                            NotificationItem(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .conditional(
+                                        !notification.isRead,
+                                        Modifier.background(MaterialTheme.colorScheme.primary.copy(alpha = 0.05f))
+                                    ),
+                                notification = notification,
+                                onClick = {}
+                            )
 
-                        Divider()
+                            Divider()
+                        }
                     }
-                }
 
-                if (notifications.loadState.append is LoadState.Loading) {
-                    item {
-                        Box(Modifier.fillMaxWidth().padding(top = 12.dp)) {
-                            CircularProgressIndicator(Modifier.width(36.dp).align(Alignment.Center))
+                    if (notifications.loadState.append is LoadState.Loading) {
+                        item {
+                            Box(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 12.dp)) {
+                                CircularProgressIndicator(
+                                    Modifier
+                                        .width(36.dp)
+                                        .align(Alignment.Center))
+                            }
                         }
                     }
                 }
-            }
 
-            PullRefreshIndicator(
-                notifications.loadState.refresh is LoadState.Loading,
-                pullRefreshState,
-                Modifier.align(Alignment.TopCenter),
-                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                scale = true
-            )
+                PullRefreshIndicator(
+                    notifications.loadState.refresh is LoadState.Loading,
+                    pullRefreshState,
+                    Modifier.align(Alignment.TopCenter),
+                    backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    scale = true
+                )
+            }
         }
     }
 }

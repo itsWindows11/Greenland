@@ -165,7 +165,8 @@ fun NotificationItemPreview() {
             false,
             false,
             false,
-            emptyImmutableList()
+            emptyImmutableList(),
+            null
         ),
         "Test post.",
         emptyImmutableList(),
@@ -194,7 +195,8 @@ fun NotificationItemPreview() {
             false,
             false,
             false,
-            emptyImmutableList()
+            emptyImmutableList(),
+            null
         ),
         Notification.Reason.LIKE,
         null,
