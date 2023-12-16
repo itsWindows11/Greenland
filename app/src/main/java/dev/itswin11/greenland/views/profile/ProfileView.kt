@@ -167,14 +167,14 @@ fun ProfileView(
                 )
 
                 val animatedPadding by animateDpAsState(
-                    targetValue = if (scrollState.value.dp >= headerHeight.value) 86.dp else 0.dp,
+                    targetValue = if (scrollState.value.dp >= headerHeight.value) 90.dp else 0.dp,
                     label = "padding"
                 )
 
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .verticalScroll(scrollState)
+                        .verticalScroll(scrollState, enabled = scrollState.value.dp <= headerHeight.value)
                 ) {
                     ProfileViewHeader(Modifier.onGloballyPositioned {
                         headerHeight.value = it.size.height.dp - 2.dp
@@ -202,7 +202,8 @@ fun ProfileView(
                                                 pagerState.animateScrollToPage(index)
                                                 shouldChangeTabByPager.value = true
                                             }
-                                        }
+                                        },
+                                        selected = selectedTab.value == index
                                     )
                                 }
                             }
