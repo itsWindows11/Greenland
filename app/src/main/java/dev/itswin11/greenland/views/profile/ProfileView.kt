@@ -174,7 +174,7 @@ fun ProfileView(
                 Column(
                     Modifier
                         .fillMaxSize()
-                        .verticalScroll(scrollState, enabled = scrollState.value.dp <= headerHeight.value)
+                        .verticalScroll(scrollState)
                 ) {
                     ProfileViewHeader(Modifier.onGloballyPositioned {
                         headerHeight.value = it.size.height.dp - 2.dp
