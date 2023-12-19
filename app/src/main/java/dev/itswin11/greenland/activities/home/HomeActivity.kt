@@ -111,10 +111,15 @@ class HomeActivity : ComponentActivity() {
                                     )
                                 },
                                 popExitTransition = {
-                                    fadeOut(tween(200)) + slideOutOfContainer(
-                                        towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                                        targetOffset = { it / 3 }
-                                    )
+                                    if (targetState.destination.route?.startsWith("followerView") == true
+                                        || targetState.destination.route?.startsWith("followingView") == true) {
+                                        fadeOut(tween(200)) + slideOutOfContainer(
+                                            towards = AnimatedContentTransitionScope.SlideDirection.Start,
+                                            targetOffset = { it / 3 }
+                                        )
+                                    } else {
+                                        ExitTransition.None
+                                    }
                                 },) {
                                 ProfileView(
                                     onFollowingClicked = {
