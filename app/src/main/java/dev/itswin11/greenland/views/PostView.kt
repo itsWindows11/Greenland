@@ -251,18 +251,14 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost, onPostClick: 
                     )
 
                     is TimelinePostFeature.ImagesFeature -> {
-                        if (post.feature.images.size > 1) {
-                            Modifier
-                                .fillMaxWidth()
-                                .height(250.dp)
+                        val imageModifier = if (post.feature.images.size > 1) {
+                            Modifier.height(250.dp)
                         } else {
-                            Modifier
-                                .fillMaxWidth()
-                                .heightIn(max = 650.dp)
+                            Modifier.heightIn(max = 650.dp)
                         }
 
                         PostImageGrid(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = imageModifier.fillMaxWidth(),
                             images = { post.feature.images },
                             onImageClick = {
                                 // TODO: Image Click Event
@@ -281,18 +277,14 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost, onPostClick: 
                         if (post.feature.media is TimelinePostFeature.ExternalFeature) {
                             PostExternalEmbed(Modifier.fillMaxWidth(), post.feature.media)
                         } else if (post.feature.media is TimelinePostFeature.ImagesFeature) {
-                            if (post.feature.media.images.size > 1) {
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height(250.dp)
+                            val imageModifier = if (post.feature.media.images.size > 1) {
+                                Modifier.height(250.dp)
                             } else {
-                                Modifier
-                                    .fillMaxWidth()
-                                    .heightIn(max = 650.dp)
+                                Modifier.heightIn(max = 650.dp)
                             }
 
                             PostImageGrid(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = imageModifier.fillMaxWidth(),
                                 images = { post.feature.media.images },
                                 onImageClick = {
                                     // TODO: Image Click Event

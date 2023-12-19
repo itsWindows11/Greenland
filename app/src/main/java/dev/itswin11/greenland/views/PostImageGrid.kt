@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -42,8 +43,8 @@ import kotlinx.collections.immutable.toImmutableList
 fun PostImageGrid(
     modifier: Modifier = Modifier,
     images: () -> ImmutableList<EmbedImage>,
-    onImageClick: @DisallowComposableCalls (imageIndex: Int) -> Unit,
-    onAltButtonClick: @DisallowComposableCalls (imageIndex: Int) -> Unit
+    onImageClick: (imageIndex: Int) -> Unit,
+    onAltButtonClick: (imageIndex: Int) -> Unit
 ) {
     val imagesRemembered = remember { images() }
     val blackRippleEffect = rememberRipple(color = Color.Black)
@@ -67,6 +68,7 @@ fun PostImageGrid(
                     onAltButtonClick = { onAltButtonClick(0) }
                 ) {
                     AsyncImage(
+                        modifier = Modifier.fillMaxSize(),
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(imagesRemembered[0].thumb)
                             .crossfade(500)
@@ -92,6 +94,7 @@ fun PostImageGrid(
                     onAltButtonClick = { onAltButtonClick(1) }
                 ) {
                     AsyncImage(
+                        modifier = Modifier.fillMaxSize(),
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(imagesRemembered[1].thumb)
                             .crossfade(500)
@@ -120,6 +123,7 @@ fun PostImageGrid(
                     onAltButtonClick = { onAltButtonClick(0) }
                 ) {
                     AsyncImage(
+                        modifier = Modifier.fillMaxSize(),
                         model = ImageRequest.Builder(LocalContext.current)
                             .data(imagesRemembered[0].thumb)
                             .crossfade(500)
@@ -145,6 +149,7 @@ fun PostImageGrid(
                         onAltButtonClick = { onAltButtonClick(1) }
                     ) {
                         AsyncImage(
+                            modifier = Modifier.fillMaxSize(),
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(imagesRemembered[1].thumb)
                                 .crossfade(500)
@@ -169,6 +174,7 @@ fun PostImageGrid(
                         onAltButtonClick = { onAltButtonClick(2) }
                     ) {
                         AsyncImage(
+                            modifier = Modifier.fillMaxSize(),
                             model = ImageRequest.Builder(LocalContext.current)
                                 .data(imagesRemembered[2].thumb)
                                 .crossfade(500)
@@ -341,7 +347,7 @@ fun PostImageWrapper(
     onAltButtonClick: @DisallowComposableCalls () -> Unit,
     content: @Composable () -> Unit
 ) {
-    Box(modifier) {
+    Box(modifier.heightIn(min = 120.dp)) {
         content()
 
         if (altExists) {
