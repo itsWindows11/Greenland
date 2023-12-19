@@ -157,12 +157,17 @@ fun ProfileView(
                 )
 
                 val topBarScrollAlpha by animateFloatAsState(
-                    targetValue = if (scrollState.value.dp >= 200.dp) 1f else 0.7f,
+                    targetValue = if (scrollState.value.dp >= 200.dp) 1f else 0f,
+                    label = "alpha"
+                )
+
+                val topBarButtonBgScrollAlpha by animateFloatAsState(
+                    targetValue = if (scrollState.value.dp >= 200.dp) 0f else 0.7f,
                     label = "alpha"
                 )
 
                 val animatedPadding by animateDpAsState(
-                    targetValue = if (scrollState.value.dp >= headerHeight.value) 86.dp else 0.dp,
+                    targetValue = if (scrollState.value.dp >= headerHeight.value) 90.dp else 0.dp,
                     label = "padding"
                 )
 
@@ -197,7 +202,8 @@ fun ProfileView(
                                                 pagerState.animateScrollToPage(index)
                                                 shouldChangeTabByPager.value = true
                                             }
-                                        }
+                                        },
+                                        selected = selectedTab.value == index
                                     )
                                 }
                             }
@@ -269,7 +275,15 @@ fun ProfileView(
                             .padding(horizontal = 8.dp)
                             .statusBarsPadding()
                     ) {
-                        IconButton(onClick = { /*TODO*/ }, Modifier.padding(top = 8.dp)) {
+                        IconButton(
+                            onClick = { /*TODO*/ },
+                            Modifier
+                                .padding(top = 8.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.surface.copy(alpha = topBarButtonBgScrollAlpha),
+                                    shape = CircleShape
+                                )
+                        ) {
                             Icon(
                                 Icons.Rounded.ArrowBack,
                                 contentDescription = "Back",
@@ -325,6 +339,10 @@ fun ProfileView(
                                     moreButtonOffset.intValue = it.boundsInRoot().left.toInt()
                                 }
                                 .padding(top = 8.dp)
+                                .background(
+                                    MaterialTheme.colorScheme.surface.copy(alpha = topBarButtonBgScrollAlpha),
+                                    shape = CircleShape
+                                )
                         ) {
                             Icon(
                                 Icons.Rounded.MoreVert,
