@@ -1,6 +1,5 @@
 package dev.itswin11.greenland.views
 
-import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -266,14 +265,16 @@ fun PostContent(
                             modifier = imageModifier.fillMaxWidth(),
                             images = { post.feature.images },
                             onImageClick = {
-                                // TODO: Image Click Event
-                                Toast.makeText(context, "TODO: Image Click", Toast.LENGTH_SHORT)
-                                    .show()
+                                onInteraction(
+                                    PostAction.ViewImage,
+                                    post.toSelectedPostData(it)
+                                )
                             },
                             onAltButtonClick = {
-                                // TODO: Alt Click Event
-                                Toast.makeText(context, "TODO: Alt Click", Toast.LENGTH_SHORT)
-                                    .show()
+                                onInteraction(
+                                    PostAction.ViewAltText,
+                                    post.toSelectedPostData(it)
+                                )
                             }
                         )
                     }
@@ -292,14 +293,16 @@ fun PostContent(
                                 modifier = imageModifier.fillMaxWidth(),
                                 images = { post.feature.media.images },
                                 onImageClick = {
-                                    // TODO: Image Click Event
-                                    Toast.makeText(context, "TODO: Image Click", Toast.LENGTH_SHORT)
-                                        .show()
+                                    onInteraction(
+                                        PostAction.ViewImage,
+                                        post.toSelectedPostData(it)
+                                    )
                                 },
                                 onAltButtonClick = {
-                                    // TODO: Alt Click Event
-                                    Toast.makeText(context, "TODO: Alt Click", Toast.LENGTH_SHORT)
-                                        .show()
+                                    onInteraction(
+                                        PostAction.ViewAltText,
+                                        post.toSelectedPostData(it)
+                                    )
                                 }
                             )
                         }

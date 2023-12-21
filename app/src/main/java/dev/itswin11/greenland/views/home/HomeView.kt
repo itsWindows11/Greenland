@@ -47,6 +47,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import dev.itswin11.greenland.enums.PostAction
+import dev.itswin11.greenland.models.SelectedPostData
 import dev.itswin11.greenland.viewmodels.HomeViewModel
 import dev.itswin11.greenland.views.PostsList
 import dev.itswin11.greenland.views.ZoomableImagePopup
@@ -55,7 +57,8 @@ import dev.itswin11.greenland.views.ZoomableImagePopup
 @Composable
 fun HomeView(
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = viewModel(),
+    onPostClick: (SelectedPostData) -> Unit
 ) {
     val scrollState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
@@ -120,11 +123,58 @@ fun HomeView(
                     scrollState,
                     posts,
                     pinnedScrollBehavior.nestedScrollConnection,
-                    fabNestedScrollConnection,
-                    { _, _ ->
-                        // TODO: Handle
+                    fabNestedScrollConnection
+                ) { action, data ->
+                    // Make sure nothing is open so we get a squeaky clean state.
+                    showAltBottomSheet.value = false
+                    showImageViewer.value = false
+
+                    when (action) {
+                        PostAction.ViewImage -> {
+                            viewModel.selectedPostData.value = data
+                            showImageViewer.value = true
+                        }
+
+                        PostAction.ViewAltText -> {
+                            viewModel.selectedPostData.value = data
+                            showAltBottomSheet.value = true
+                        }
+
+                        PostAction.ViewPost -> {
+                            onPostClick(data)
+                        }
+
+                        PostAction.More -> {
+                            // TODO: Open bottom sheet for more actions
+                        }
+
+                        PostAction.Reply -> {
+                            // TODO: Open popup for replying
+                        }
+
+                        PostAction.Repost -> {
+                            viewModel.selectedPostData.value = data
+
+                            // TODO: Open bottom sheet for choosing whether to quote or repost
+                        }
+
+                        PostAction.Like -> {
+                            // TODO: Find the index of the post, update the state after adding
+                            // a like record.
+                        }
+
+                        PostAction.ViewProfile -> {
+                            // TODO: Expose ability to control the navigation or use Activity-based approach
+                        }
+
+                        PostAction.Share -> {
+                            // TODO: Open share sheet and provide post content or URL
+                        }
+
+                        PostAction.ViewFeed -> TODO()
+                        PostAction.ViewGraphList -> TODO()
                     }
-                )
+                }
             }
 
             AnimatedVisibility(

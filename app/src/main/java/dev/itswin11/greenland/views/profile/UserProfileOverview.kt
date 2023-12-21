@@ -94,7 +94,7 @@ private fun UserProfileOverviewPosts(
                         )
                         return@items
 
-                    FeedPostSlice(post, pageType == UserProfileOverviewTabType.REPLIES) {/*TODO*/ }
+                    FeedPostSlice(post, pageType == UserProfileOverviewTabType.REPLIES) {_, _ -> /*TODO*/}
                     Divider()
                 }
             }
