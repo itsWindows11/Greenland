@@ -4,18 +4,13 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
-fun <T> emptyImmutableList(): ImmutableList<T> {
-    return persistentListOf()
-}
+fun <T> emptyImmutableList(): ImmutableList<T> = persistentListOf()
 
-inline fun <T, R> Iterable<T>.mapImmutable(transform: (T) -> R): ImmutableList<R> {
-    return map { transform(it) }.toImmutableList()
-}
+inline fun <T, R> Iterable<T>.mapImmutable(transform: (T) -> R): ImmutableList<R>
+    = map { transform(it) }.toImmutableList()
 
-inline fun <T, R> Iterable<T>.flatMapImmutable(transform: (T) -> Iterable<R>): ImmutableList<R> {
-    return flatMap { transform(it) }.toImmutableList()
-}
+inline fun <T, R> Iterable<T>.flatMapImmutable(transform: (T) -> Iterable<R>): ImmutableList<R>
+    = flatMap { transform(it) }.toImmutableList()
 
-fun <T> ImmutableList<T>.plus(iterable: Iterable<T>): ImmutableList<T> {
-    return (this + iterable).toImmutableList()
-}
+fun <T> ImmutableList<T>.plus(iterable: Iterable<T>): ImmutableList<T>
+    = (this + iterable).toImmutableList()

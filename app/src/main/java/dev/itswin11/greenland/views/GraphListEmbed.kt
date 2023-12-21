@@ -29,7 +29,7 @@ import dev.itswin11.greenland.models.EmbedPost
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GraphListEmbed(modifier: Modifier = Modifier, post: EmbedPost.GraphListEmbedPost) {
+fun GraphListEmbed(modifier: Modifier = Modifier, post: EmbedPost.GraphListEmbedPost, onClick: (EmbedPost.GraphListEmbedPost) -> Unit) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -40,7 +40,7 @@ fun GraphListEmbed(modifier: Modifier = Modifier, post: EmbedPost.GraphListEmbed
             ),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         shape = RoundedCornerShape(12.dp),
-        onClick = {}
+        onClick = { onClick(post) }
     ) {
         Column(Modifier.padding(4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(modifier = Modifier.padding(8.dp)) {

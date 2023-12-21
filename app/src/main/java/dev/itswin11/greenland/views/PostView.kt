@@ -50,17 +50,18 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import dev.itswin11.greenland.R
 import dev.itswin11.greenland.activities.home.timeAgo
+import dev.itswin11.greenland.enums.PostAction
 import dev.itswin11.greenland.models.EmbedPost
 import dev.itswin11.greenland.models.Label
-import dev.itswin11.greenland.models.LitePost
 import dev.itswin11.greenland.models.Moment
+import dev.itswin11.greenland.models.SelectedPostData
 import dev.itswin11.greenland.models.TimelinePost
 import dev.itswin11.greenland.models.TimelinePostFeature
 import dev.itswin11.greenland.models.TimelinePostLink
 import dev.itswin11.greenland.models.TimelinePostReason
-import dev.itswin11.greenland.models.toLitePost
 import dev.itswin11.greenland.models.toPost
 import dev.itswin11.greenland.models.toProfile
+import dev.itswin11.greenland.models.toSelectedPostData
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.datetime.Instant
@@ -76,7 +77,7 @@ fun PostView(
     post: TimelinePost,
     isThreadChild: Boolean = false,
     hasThreadChild: Boolean = false,
-    onPostClick: (post: LitePost) -> Unit
+    onInteraction: (action: PostAction, postData: SelectedPostData) -> Unit
 ) {
     val displayName = remember { post.author.displayName ?: post.author.handle }
     val paddingModifier =
@@ -90,7 +91,7 @@ fun PostView(
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Card(
             colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-            onClick = { onPostClick(post.toLitePost()) },
+            onClick = { onInteraction(PostAction.ViewPost, post.toSelectedPostData()) },
             shape = RoundedCornerShape(0.dp)
         ) {
             if (post.reposted && post.reason is TimelinePostReason.TimelinePostRepost) {
@@ -170,7 +171,7 @@ fun PostView(
                         }
                         .fillMaxHeight(),
                     post = post,
-                    onPostClick = onPostClick
+                    onInteraction = onInteraction
                 )
             }
         }
@@ -179,7 +180,11 @@ fun PostView(
 
 // TODO: Implement post interactions
 @Composable
-fun PostContent(modifier: Modifier = Modifier, post: TimelinePost, onPostClick: (post: LitePost) -> Unit) {
+fun PostContent(
+    modifier: Modifier = Modifier,
+    post: TimelinePost,
+    onInteraction: (action: PostAction, postData: SelectedPostData) -> Unit
+) {
     val displayName = remember { post.author.displayName ?: post.author.handle.handle }
     val timeAgoString = remember { timeAgo(post.createdAt.instant.epochSeconds) }
 
@@ -301,13 +306,29 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost, onPostClick: 
 
                         when (post.feature.post) {
                             is EmbedPost.VisibleEmbedPost
-                                -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post, onPostClick)
+                                -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post) {
+                                onInteraction(
+                                    PostAction.ViewPost,
+                                    post.feature.post.toSelectedPostData()
+                                )
+                            }
 
                             is EmbedPost.GeneratorViewEmbedPost
-                                -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                                -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post) {
+                                /*onInteraction(
+                                    PostAction.ViewFeed,
+                                    post.feature.post.toSelectedPostData()
+                                )*/
+                                    // TODO: Figure this out
+                            }
 
                             is EmbedPost.GraphListEmbedPost
-                                -> GraphListEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                                -> GraphListEmbed(Modifier.fillMaxWidth(), post.feature.post) {
+                                /*onInteraction(
+                                    PostAction.ViewGraphList,
+                                    post.feature.post.toSelectedPostData()
+                                )*/
+                            }
 
                             is EmbedPost.BlockedEmbedPost
                                 -> FeedWarningContainer(
@@ -322,13 +343,30 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost, onPostClick: 
                     is TimelinePostFeature.PostFeature -> {
                         when (post.feature.post) {
                             is EmbedPost.VisibleEmbedPost
-                            -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post, onPostClick)
+                            -> EmbeddedPost(Modifier.fillMaxWidth(), post.feature.post) {
+                                onInteraction(
+                                    PostAction.ViewPost,
+                                    post.feature.post.toSelectedPostData()
+                                )
+                            }
 
                             is EmbedPost.GeneratorViewEmbedPost
-                            -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                            -> GeneratorViewEmbed(Modifier.fillMaxWidth(), post.feature.post) {
+                                /*onInteraction(
+                                    PostAction.ViewFeed,
+                                    post.feature.post.toSelectedPostData()
+                                )*/
+                                // TODO: Figure this out
+                            }
 
                             is EmbedPost.GraphListEmbedPost
-                            -> GraphListEmbed(Modifier.fillMaxWidth(), post.feature.post)
+                            -> GraphListEmbed(Modifier.fillMaxWidth(), post.feature.post) {
+                                /*onInteraction(
+                                    PostAction.ViewGraphList,
+                                    post.feature.post.toSelectedPostData()
+                                )*/
+                                // TODO: Figure this out
+                            }
 
                             is EmbedPost.BlockedEmbedPost
                             -> FeedWarningContainer(
@@ -352,7 +390,7 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost, onPostClick: 
                 .fillMaxWidth()
         ) {
             OutlinedButton(
-                onClick = {},
+                onClick = { onInteraction(PostAction.Reply, post.toSelectedPostData()) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -376,7 +414,7 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost, onPostClick: 
             }
 
             OutlinedButton(
-                onClick = {},
+                onClick = { onInteraction(PostAction.Repost, post.toSelectedPostData()) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -400,7 +438,7 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost, onPostClick: 
             }
 
             OutlinedButton(
-                onClick = {},
+                onClick = { onInteraction(PostAction.Like, post.toSelectedPostData()) },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -424,10 +462,10 @@ fun PostContent(modifier: Modifier = Modifier, post: TimelinePost, onPostClick: 
             }
 
             OutlinedButton(
+                onClick = { onInteraction(PostAction.Share, post.toSelectedPostData()) },
                 modifier = Modifier
                     .offset(8.dp, 0.dp)
                     .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-                onClick = {},
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.onSurfaceVariant
@@ -490,6 +528,6 @@ fun PostViewPreview() {
     )
 
     GreenlandTheme {
-        PostView(bskyPost!!, onPostClick = {})
+        PostView(bskyPost!!, onInteraction = { _, _ -> })
     }
 }

@@ -29,7 +29,11 @@ import dev.itswin11.greenland.models.EmbedPost
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GeneratorViewEmbed(modifier: Modifier = Modifier, post: EmbedPost.GeneratorViewEmbedPost) {
+fun GeneratorViewEmbed(
+    modifier: Modifier = Modifier,
+    post: EmbedPost.GeneratorViewEmbedPost,
+    onClick: (EmbedPost.GeneratorViewEmbedPost) -> Unit
+) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -40,7 +44,7 @@ fun GeneratorViewEmbed(modifier: Modifier = Modifier, post: EmbedPost.GeneratorV
             ),
         colors = CardDefaults.cardColors(containerColor = Color.Transparent),
         shape = RoundedCornerShape(12.dp),
-        onClick = {}
+        onClick = { onClick(post) }
     ) {
         Column(Modifier.padding(4.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(modifier = Modifier.padding(8.dp)) {
