@@ -3,12 +3,8 @@ package dev.itswin11.greenland.activities.home
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -23,16 +19,20 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -43,12 +43,16 @@ import dev.itswin11.greenland.App
 import dev.itswin11.greenland.R
 import dev.itswin11.greenland.models.navigation.BottomNavigationItem
 import dev.itswin11.greenland.ui.theme.GreenlandTheme
+import dev.itswin11.greenland.util.popupComposableWithTriggerCase
+import dev.itswin11.greenland.util.popupPageComposable
+import dev.itswin11.greenland.util.secondaryPageComposable
 import dev.itswin11.greenland.views.explore.ExploreView
 import dev.itswin11.greenland.views.home.HomeView
 import dev.itswin11.greenland.views.notifications.NotificationsView
 import dev.itswin11.greenland.views.profile.ProfileFollowingView
 import dev.itswin11.greenland.views.profile.ProfileView
 import sh.christian.ozone.api.AtIdentifier
+import soup.compose.material.motion.animation.rememberSlideDistance
 
 class HomeActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -83,111 +87,7 @@ class HomeActivity : ComponentActivity() {
                     }
 
                     Column(modifier = Modifier.fillMaxSize()) {
-                        NavHost(
-                            modifier = Modifier.weight(1f),
-                            startDestination = "home",
-                            navController = navController,
-                            enterTransition = { EnterTransition.None },
-                            exitTransition = { ExitTransition.None },
-                            popEnterTransition = { EnterTransition.None },
-                            popExitTransition = { ExitTransition.None }
-                        ) {
-                            composable("home") {
-                                HomeView { post ->
-                                    // TODO: implement thread view.
-                                }
-                            }
-                            composable("explore") {
-                                ExploreView()
-                            }
-                            composable("notifications") {
-                                NotificationsView()
-                            }
-                            composable("profile",
-                                popEnterTransition = {
-                                    fadeIn(tween(150, 100)) + slideIntoContainer(
-                                        towards = AnimatedContentTransitionScope.SlideDirection.End,
-                                        initialOffset = { it / 3 }
-                                    )
-                                },
-                                popExitTransition = {
-                                    if (targetState.destination.route?.startsWith("followerView") == true
-                                        || targetState.destination.route?.startsWith("followingView") == true) {
-                                        fadeOut(tween(200)) + slideOutOfContainer(
-                                            towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                                            targetOffset = { it / 3 }
-                                        )
-                                    } else {
-                                        ExitTransition.None
-                                    }
-                                },) {
-                                ProfileView(
-                                    onFollowingClicked = {
-                                        navController.navigate("followingView/${it.atIdentifier}")
-                                    },
-                                    onFollowerClicked = {
-                                        navController.navigate("followerView/${it.atIdentifier}")
-                                    }
-                                )
-                            }
-
-                            composable("threadView") {
-                                // TODO
-                            }
-                            composable(
-                                "followerView/{atIdentifier}",
-                                arguments = listOf(navArgument("atIdentifier") {
-                                    type = NavType.StringType
-                                }),
-                                enterTransition = {
-                                    fadeIn(tween(150, 200)) + slideIntoContainer(
-                                        towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                                        animationSpec = tween(150, 150),
-                                        initialOffset = { it / 3 }
-                                    )
-                                },
-                                popExitTransition = {
-                                    fadeOut() + slideOutOfContainer(
-                                        towards = AnimatedContentTransitionScope.SlideDirection.End,
-                                        targetOffset = { it }
-                                    )
-                                }) {
-                                it.arguments?.getString("atIdentifier")?.let { profileDid ->
-                                    ProfileFollowingView(
-                                        identifier = AtIdentifier(profileDid),
-                                        isFollowingPage = false,
-                                        onBackRequested = { navController.popBackStack() }
-                                    )
-                                }
-                            }
-
-                            composable(
-                                "followingView/{atIdentifier}",
-                                arguments = listOf(navArgument("atIdentifier") {
-                                    type = NavType.StringType
-                                }),
-                                enterTransition = {
-                                    fadeIn(tween(150, 200)) + slideIntoContainer(
-                                        towards = AnimatedContentTransitionScope.SlideDirection.Start,
-                                        animationSpec = tween(150, 150),
-                                        initialOffset = { it / 3 }
-                                    )
-                                },
-                                popExitTransition = {
-                                    fadeOut() + slideOutOfContainer(
-                                        towards = AnimatedContentTransitionScope.SlideDirection.End,
-                                        targetOffset = { it }
-                                    )
-                                }) {
-                                it.arguments?.getString("atIdentifier")?.let { profileDid ->
-                                    ProfileFollowingView(
-                                        identifier = AtIdentifier(profileDid),
-                                        isFollowingPage = true,
-                                        onBackRequested = { navController.popBackStack() }
-                                    )
-                                }
-                            }
-                        }
+                        AppNavHost(Modifier.weight(1f), navController)
 
                         NavigationBar {
                             BottomNavigationItem.items.forEachIndexed { index, navigationItem ->
@@ -243,6 +143,92 @@ class HomeActivity : ComponentActivity() {
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()) {
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val slideDistance = rememberSlideDistance()
+
+    NavHost(
+        modifier = modifier,
+        startDestination = BottomNavigationItem.Home.route,
+        navController = navController,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { ExitTransition.None }
+    ) {
+        composable(BottomNavigationItem.Home.route) {
+            HomeView { post ->
+                // TODO: implement thread view.
+            }
+        }
+        composable(BottomNavigationItem.Explore.route) {
+            ExploreView()
+        }
+        composable(BottomNavigationItem.Notifications.route) {
+            NotificationsView()
+        }
+        popupComposableWithTriggerCase(
+            BottomNavigationItem.Profile.route,
+            isRtl,
+            slideDistance,
+            enterAnimTriggerCase = {
+                /*it.initialState.destination.route?.startsWith("followerView") == true
+                        || it.initialState.destination.route?.startsWith("followingView") == true*/
+                false
+            },
+            exitAnimTriggerCase = {
+                it.targetState.destination.route?.startsWith("followerView") == true
+                        || it.targetState.destination.route?.startsWith("followingView") == true
+            }
+        ) {
+            ProfileView(
+                onFollowingClicked = {
+                    navController.navigate("followingView/${it.atIdentifier}")
+                },
+                onFollowerClicked = {
+                    navController.navigate("followerView/${it.atIdentifier}")
+                }
+            )
+        }
+
+        secondaryPageComposable(BottomNavigationItem.PostView.route, isRtl, slideDistance) {
+            // TODO
+        }
+
+        popupPageComposable(
+            "${BottomNavigationItem.FollowerView.route}/{atIdentifier}",
+            isRtl,
+            slideDistance,
+            arguments = listOf(navArgument("atIdentifier") {
+                type = NavType.StringType
+            })) {
+            it.arguments?.getString("atIdentifier")?.let { profileDid ->
+                ProfileFollowingView(
+                    identifier = AtIdentifier(profileDid),
+                    isFollowingPage = false,
+                    onBackRequested = { navController.popBackStack() }
+                )
+            }
+        }
+        popupPageComposable(
+            "${BottomNavigationItem.FollowingView.route}/{atIdentifier}",
+            isRtl,
+            slideDistance,
+            arguments = listOf(navArgument("atIdentifier") {
+                type = NavType.StringType
+            })) {
+            it.arguments?.getString("atIdentifier")?.let { profileDid ->
+                ProfileFollowingView(
+                    identifier = AtIdentifier(profileDid),
+                    isFollowingPage = true,
+                    onBackRequested = { navController.popBackStack() }
+                )
             }
         }
     }

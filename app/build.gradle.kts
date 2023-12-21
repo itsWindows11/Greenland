@@ -46,7 +46,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.5-dev-k1.9.21-163bb051fe5"
+        kotlinCompilerExtensionVersion = "1.5.7"
     }
     packaging {
         resources {
@@ -89,6 +89,8 @@ dependencies {
     implementation("androidx.compose.material:material")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation("io.github.fornewid:material-motion-compose-navigation:1.0.7")
+    implementation("io.github.fornewid:material-motion-compose-core:1.0.7")
 
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
     implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
