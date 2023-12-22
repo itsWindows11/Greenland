@@ -148,6 +148,9 @@ class LoginActivity : ComponentActivity() {
             authInfoBuilder.refreshJwt = response.refreshJwt
             authInfoBuilder.did = response.did.did
             authInfoBuilder.handle = response.handle.handle
+            authInfoBuilder.signedIn = true
+
+            builder.signedIn = true
 
             val authInfo = authInfoBuilder.build()
 

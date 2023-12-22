@@ -5,7 +5,8 @@ option java_multiple_files = true;
 
 message AuthInfoContainer {
   int32 currentAccountIndex = 1;
-  repeated AuthInfo authInfo = 2;
+  bool signedIn = 2;
+  repeated AuthInfo authInfo = 3;
 }
 
 message AuthInfo {
@@ -14,4 +15,5 @@ message AuthInfo {
   string email = 3;
   string accessJwt = 4;
   string refreshJwt = 5;
+  bool signedIn = 6;
 }

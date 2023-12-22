@@ -62,8 +62,8 @@ class MainActivity : ComponentActivity() {
     fun MainView(flow : Flow<AuthInfoContainer>) {
         val authInfoContainer = flow.collectAsState(initial = null).value
 
-        LaunchedEffect(authInfoContainer?.authInfoList?.get(authInfoContainer.currentAccountIndex)) {
-            if (authInfoContainer?.authInfoList?.get(authInfoContainer.currentAccountIndex) != null) {
+        LaunchedEffect(authInfoContainer?.signedIn) {
+            if (authInfoContainer?.signedIn == true) {
                 App.httpClient = App.createHttpClientWithAuth(
                     authInfoContainer.authInfoList[authInfoContainer.currentAccountIndex].accessJwt,
                     authInfoContainer.authInfoList[authInfoContainer.currentAccountIndex].refreshJwt
@@ -87,7 +87,7 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        if (authInfoContainer != null && authInfoContainer.authInfoList?.get(authInfoContainer.currentAccountIndex) == null)
+        if (authInfoContainer != null && !authInfoContainer.signedIn)
             LoginOrSignUpView()
         else {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
