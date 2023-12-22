@@ -11,9 +11,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.ChevronRight
@@ -218,7 +221,7 @@ fun HomeView(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AltBottomSheet(isOpen: Boolean, altText: String, onDismiss: @DisallowComposableCalls () -> Unit) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberModalBottomSheetState()
 
     if (isOpen) {
         ModalBottomSheet(sheetState = sheetState, onDismissRequest = onDismiss) {
@@ -234,11 +237,13 @@ private fun AltBottomSheet(isOpen: Boolean, altText: String, onDismiss: @Disallo
                     modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 16.dp)
                 )
 
-                Text(
-                    altText,
-                    fontWeight = FontWeight.Normal,
-                    modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 8.dp)
-                )
+                Column(Modifier.verticalScroll(rememberScrollState()).heightIn(max = 700.dp)) {
+                    Text(
+                        altText,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier.padding(0.dp, 0.dp, 0.dp, 8.dp)
+                    )
+                }
             }
         }
     }

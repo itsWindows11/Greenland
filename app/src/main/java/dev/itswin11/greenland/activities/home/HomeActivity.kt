@@ -189,10 +189,10 @@ fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController =
         ) {
             ProfileView(
                 onFollowingClicked = {
-                    navController.navigate("followingView/${it.atIdentifier}")
+                    navController.navigate("${BottomNavigationItem.FollowingView.route}/${it.atIdentifier}")
                 },
                 onFollowerClicked = {
-                    navController.navigate("followerView/${it.atIdentifier}")
+                    navController.navigate("${BottomNavigationItem.FollowerView.route}/${it.atIdentifier}")
                 }
             )
         }
