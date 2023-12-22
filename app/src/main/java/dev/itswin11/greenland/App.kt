@@ -19,6 +19,8 @@ import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.compression.ContentEncoding
 import io.ktor.client.plugins.defaultRequest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 
 val Context.authDataStore: DataStore<AuthInfoContainer> by dataStore(
@@ -85,5 +87,10 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Cache the data store
+        runBlocking {
+            authDataStore.data.first()
+        }
     }
 }
