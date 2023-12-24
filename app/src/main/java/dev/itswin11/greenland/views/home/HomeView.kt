@@ -191,7 +191,7 @@ fun HomeView(
                 FloatingActionButton(
                     onClick = { /*TODO*/ }
                 ) {
-                    Icon(Icons.Rounded.Add, contentDescription = "Add")
+                    Icon(Icons.Rounded.Add, contentDescription = "Create")
                 }
             }
         }
