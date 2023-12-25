@@ -187,8 +187,6 @@ fun PostContent(
     val displayName = remember { post.author.displayName ?: post.author.handle.handle }
     val timeAgoString = remember { timeAgo(post.createdAt.instant.epochSeconds) }
 
-    val context = LocalContext.current
-
     Column(modifier) {
         Row {
             Column(modifier = Modifier.weight(1f)) {
@@ -244,7 +242,7 @@ fun PostContent(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             if (post.text.isNotBlank()) {
-                Text(post.text)
+                FacetFormattedText(post, post.text, post.textLinks, {}, { _ -> })
             }
 
             if (post.feature != null) {
