@@ -43,7 +43,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.TabRow
-import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -83,6 +82,7 @@ import dev.itswin11.greenland.enums.UserProfileOverviewTabType
 import dev.itswin11.greenland.models.FullProfile
 import dev.itswin11.greenland.viewmodels.ProfileViewModel
 import dev.itswin11.greenland.views.AppTab
+import dev.itswin11.greenland.views.AppTabIndicator
 import kotlinx.coroutines.launch
 import sh.christian.ozone.api.AtIdentifier
 
@@ -185,10 +185,9 @@ fun ProfileView(
                             TabRow(
                                 selectedTabIndex = selectedTab.value,
                                 indicator = { tabPositions ->
-                                    TabRowDefaults.Indicator(
-                                        modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                                        height = 2.dp,
-                                        color = MaterialTheme.colorScheme.onSurface
+                                    AppTabIndicator(
+                                        Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                                        MaterialTheme.colorScheme.onSurface
                                     )
                                 },
                             ) {
