@@ -38,19 +38,31 @@ class UserNotificationsSource: PagingSource<String, Notification>() {
     }
 
     private suspend fun fetchPosts(response: ListNotificationsResponse): List<TimelinePost> {
+        // Since the API only allows up to 25 posts to
+        // be fetched at a time, we need to chunk the
+        // list into groups of 25
         val postUris = response.notifications
             .mapNotNull { it.getPostUri() }
             .distinct()
-            .toImmutableList()
+            .chunked(25)
 
         return if (postUris.isEmpty()) {
             emptyList()
         } else {
-            App.atProtoClient
-                .getPosts(GetPostsQueryParams(postUris))
-                .requireResponse()
-                .posts
-                .mapNotNull { it.toPost() }
+            val aggregatePosts = mutableListOf<TimelinePost>()
+
+            // TODO: Make this run concurrently
+            for (i in postUris) {
+                val posts =  App.atProtoClient
+                    .getPosts(GetPostsQueryParams(i.toImmutableList()))
+                    .requireResponse()
+                    .posts
+                    .mapNotNull { it.toPost() }
+
+                aggregatePosts.addAll(posts)
+            }
+
+            aggregatePosts
         }
     }
 }
