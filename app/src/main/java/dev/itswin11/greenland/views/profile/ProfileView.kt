@@ -94,7 +94,8 @@ fun ProfileView(
     actor: AtIdentifier? = null,
     viewModel: ProfileViewModel = viewModel(),
     onFollowingClicked: (profileIdentifier: AtIdentifier) -> Unit,
-    onFollowerClicked: (profileIdentifier: AtIdentifier) -> Unit
+    onFollowerClicked: (profileIdentifier: AtIdentifier) -> Unit,
+    shouldShowBackButton: Boolean = true
 ) {
     val profile = viewModel.profile.collectAsStateWithLifecycle()
     val selectedTab = viewModel.selectedTab.collectAsStateWithLifecycle()
@@ -305,20 +306,22 @@ fun ProfileView(
                             .padding(horizontal = 8.dp)
                             .statusBarsPadding()
                     ) {
-                        IconButton(
-                            onClick = { /*TODO*/ },
-                            Modifier
-                                .padding(top = 8.dp)
-                                .background(
-                                    MaterialTheme.colorScheme.surface.copy(alpha = topBarButtonBgScrollAlpha),
-                                    shape = CircleShape
+                        if (shouldShowBackButton) {
+                            IconButton(
+                                onClick = { /*TODO*/ },
+                                Modifier
+                                    .padding(top = 8.dp)
+                                    .background(
+                                        MaterialTheme.colorScheme.surface.copy(alpha = topBarButtonBgScrollAlpha),
+                                        shape = CircleShape
+                                    )
+                            ) {
+                                Icon(
+                                    Icons.Rounded.ArrowBack,
+                                    contentDescription = "Back",
+                                    tint = MaterialTheme.colorScheme.onSurface
                                 )
-                        ) {
-                            Icon(
-                                Icons.Rounded.ArrowBack,
-                                contentDescription = "Back",
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
+                            }
                         }
 
                         Row(

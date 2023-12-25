@@ -193,7 +193,8 @@ fun AppNavHost(modifier: Modifier = Modifier, navController: NavHostController =
                 },
                 onFollowerClicked = {
                     navController.navigate("${BottomNavigationItem.FollowerView.route}/${it.atIdentifier}")
-                }
+                },
+                shouldShowBackButton = false
             )
         }
 
