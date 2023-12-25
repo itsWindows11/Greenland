@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -63,6 +64,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -108,6 +110,8 @@ fun ProfileView(
     val pagerState = rememberPagerState { 4 }
     val coroutineScope = rememberCoroutineScope()
 
+    val tabsDragged = remember { mutableStateOf(false) }
+
     val scrollState = rememberScrollState()
 
     val displayName = remember { profile.value?.displayName ?: profile.value?.handle?.handle }
@@ -152,7 +156,7 @@ fun ProfileView(
                 }
 
                 val topBarProfileInfoOpacity by animateFloatAsState(
-                    targetValue = if (scrollState.value.dp >= 320.dp) 1f else 0f,
+                    targetValue = if (scrollState.value.dp >= 420.dp) 1f else 0f,
                     label = "alpha"
                 )
 
@@ -167,7 +171,9 @@ fun ProfileView(
                 )
 
                 val animatedPadding by animateDpAsState(
-                    targetValue = if (scrollState.value.dp >= headerHeight.value) 90.dp else 0.dp,
+                    targetValue = if (scrollState.value > 0
+                        && headerHeight.value > 0.dp
+                        && scrollState.value.dp >= headerHeight.value) 90.dp else 0.dp,
                     label = "padding"
                 )
 
@@ -176,13 +182,28 @@ fun ProfileView(
                         .fillMaxSize()
                         .verticalScroll(scrollState)
                 ) {
-                    ProfileViewHeader(Modifier.onGloballyPositioned {
-                        headerHeight.value = it.size.height.dp - 2.dp
-                    }, profile.value!!, onFollowingClicked, onFollowerClicked)
+                    ProfileViewHeader(
+                        Modifier.onGloballyPositioned {
+                            headerHeight.value = it.size.height.dp - 2.dp
+                        },
+                        profile.value!!,
+                        onFollowingClicked,
+                        onFollowerClicked
+                    )
 
                     Column(Modifier.height(height)) {
                         Surface(Modifier.padding(top = animatedPadding)) {
                             TabRow(
+                                modifier = Modifier.pointerInput(Unit) {
+                                    detectDragGestures(
+                                        onDrag = { change, _ ->
+                                            tabsDragged.value = true
+                                            change.consume()
+                                        },
+                                        onDragEnd = { tabsDragged.value = false },
+                                        onDragCancel = { tabsDragged.value = false }
+                                    )
+                                },
                                 selectedTabIndex = selectedTab.value,
                                 indicator = { tabPositions ->
                                     AppTabIndicator(
@@ -262,11 +283,21 @@ fun ProfileView(
                         .height(114.dp)
                         .background(
                             brush = Brush.verticalGradient(
-                                0.5f to MaterialTheme.colorScheme.surface,
+                                0.7f to MaterialTheme.colorScheme.surface,
                                 1f to Color.Transparent
                             ),
                             alpha = topBarScrollAlpha
                         )
+                        .pointerInput(Unit) {
+                            detectDragGestures(
+                                onDrag = { change, _ ->
+                                    tabsDragged.value = true
+                                    change.consume()
+                                },
+                                onDragEnd = { tabsDragged.value = false },
+                                onDragCancel = { tabsDragged.value = false }
+                            )
+                        }
                 ) {
                     Row(
                         Modifier
