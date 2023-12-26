@@ -52,9 +52,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.itswin11.greenland.enums.PostAction
 import dev.itswin11.greenland.models.SelectedPostData
+import dev.itswin11.greenland.util.emptyImmutableList
 import dev.itswin11.greenland.viewmodels.HomeViewModel
 import dev.itswin11.greenland.views.PostsList
 import dev.itswin11.greenland.views.ZoomableImagePopup
+import kotlinx.collections.immutable.toImmutableList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -198,13 +200,28 @@ fun HomeView(
     }
 
     ZoomableImagePopup(
-        selectedPostData.value?.selectedImageIndex != null && showImageViewer.value,
+        selectedPostData.value?.selectedImageIndex != null
+                && (selectedPostData.value?.imagesFeature?.images?.size ?: 0) == 1
+                && showImageViewer.value,
         {
             showImageViewer.value = false
             viewModel.selectedPostData.value = null
         },
         selectedPostData.value?.imagesFeature?.images?.get(selectedPostData.value?.selectedImageIndex ?: 0)?.fullsize ?: "",
         selectedPostData.value?.imagesFeature?.images?.get(selectedPostData.value?.selectedImageIndex ?: 0)?.thumb ?: ""
+    )
+
+    ZoomableImagePopup(
+        selectedPostData.value?.selectedImageIndex != null
+                && (selectedPostData.value?.imagesFeature?.images?.size ?: 0) > 1
+                && showImageViewer.value,
+        {
+            showImageViewer.value = false
+            viewModel.selectedPostData.value = null
+        },
+        selectedPostData.value?.imagesFeature?.images?.map { it.fullsize }?.toImmutableList() ?: emptyImmutableList(),
+        selectedPostData.value?.imagesFeature?.images?.map { it.thumb }?.toImmutableList() ?: emptyImmutableList(),
+        selectedPostData.value?.selectedImageIndex ?: 0
     )
 
     AltBottomSheet(
